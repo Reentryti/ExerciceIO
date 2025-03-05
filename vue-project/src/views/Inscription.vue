@@ -1,8 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-    <!-- Conteneur principal -->
+    
+    <!-- Block principal -->
     <div class="w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden flex">
-      <!-- Partie gauche : Formulaire d'inscription -->
+      
+      <!-- Partie Formulaire d'inscription -->
       <div class="w-2/3 p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Inscription</h2>
         <form @submit.prevent="sInscrire">
@@ -11,27 +13,13 @@
               <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
                 Prénom
               </label>
-              <input
-                name="prenom"
-                v-model="prenom"
-                class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="grid-first-name"
-                type="text"
-                required
-              />
+              <input name="prenom" v-model="prenom" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-first-name" type="text" required/>
             </div>
             <div class="w-full md:w-1/2 px-3">
               <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
                 Nom
               </label>
-              <input
-                name="nom"
-                v-model="nom"
-                class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="grid-last-name"
-                type="text"
-                required
-              />
+              <input name="nom" v-model="nom" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" required/>
             </div>
           </div>
 

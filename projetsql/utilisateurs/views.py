@@ -7,38 +7,37 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import UserSerializer, ClasseSerializer   
 from .models import Utilisateur, Classe
 
-# Page d'accueil
+#Page d'accueil
 def index(request):
     return render(request, 'index.html')
 
-# Classe d'inscription
+#Classe d'inscription
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            # Vérifier si la classe existe
+            #Existence de la classe?
             classe_name = request.data.get('classe')
             if not Classe.objects.filter(nom=classe_name).exists():
                 return Response({'error': 'Classe invalide'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Créer l'utilisateur
+            #Creation utilisateur
             user = serializer.save()
             login(request, user)
             return Response({"message": "Utilisateur créé avec succès"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+#Classe classe
 class ClasseListView(APIView):
-    permission_classes = [AllowAny]  # Autoriser tout le monde à accéder à cette vue
+    permission_classes = [AllowAny]
 
     def get(self, request):
-        classes = Classe.objects.all()  # Récupérer toutes les classes
-        serializer = ClasseSerializer(classes, many=True)  # Sérialiser les données
-        return Response(serializer.data)  # Renvoyer la réponse
+        classes = Classe.objects.all()
+        serializer = ClasseSerializer(classes, many=True)
+        return Response(serializer.data)
 
-# Classe de connexion
+#Classe de connexion
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -52,7 +51,7 @@ class LoginView(APIView):
             return Response({"message": "Connexion réussie"}, status=status.HTTP_200_OK)
         return Response({"error": "Identifiants invalides"}, status=status.HTTP_401_UNAUTHORIZED)
 
-# Classe de déconnexion
+#Classe de déconnexion
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 

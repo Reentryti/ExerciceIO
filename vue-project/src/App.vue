@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="bg-center bg-cover min-h-screen"style="background-image: url('../public/images/background_register1.jpg');">
 
-    <!-- Barre de navigation -->
+    <!-- NavBar -->
     <nav v-if="!isAuthPage" class="bg-white shadow-lg">
       <div class="container mx-auto px-6 py-4 flex justify-between items-center">
         <div class="text-2xl font-bold text-gray-800">

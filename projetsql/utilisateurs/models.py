@@ -1,13 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-# Modèle Classe
+#Modele de la classe
 class Classe(models.Model):
     nom = models.CharField(max_length=25, unique=True)
     def __str__(self):
         return self.nom
 
-# Modèle de gestion d'utilisateurs
+#Modele de gestion des utilisateurs
 class UtilisateurManager(BaseUserManager):
     # Fonction de création d'un utilisateur
     def create_user(self, email, prenom, nom, password=None, **extra_fields):
@@ -29,7 +29,7 @@ class UtilisateurManager(BaseUserManager):
         extra_fields.setdefault('classe', None)
         return self.create_user(email, prenom, nom, password, **extra_fields)
 
-# Modèle personnalisé Utilisateur
+#Modele personnalisé d'utilisateur
 class Utilisateur(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = [
         ('professeur', 'Professeur'),
@@ -48,7 +48,7 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
     # Utilisation du modèle personnalisé
     objects = UtilisateurManager()
 
-    # Définition du champ utilisé pour l'identification
+    #Champs utilisé pour l'identification
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['prenom', 'nom']
 
