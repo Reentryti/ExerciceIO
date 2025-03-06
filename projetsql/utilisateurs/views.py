@@ -6,6 +6,8 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import UserSerializer, ClasseSerializer   
 from .models import Utilisateur, Classe
+from rest_framework.authtoken.models import Token
+
 
 #Page d'accueil
 def index(request):
@@ -47,8 +49,10 @@ class LoginView(APIView):
 
         user = authenticate(username=email, password=password)
         if user:
+            token, created = Token.objects.get_or_create(user=user)
+            role = user.role
             login(request, user)
-            return Response({"message": "Connexion réussie"}, status=status.HTTP_200_OK)
+            return Response({"message": "Connexion réussie", "token": token.key, "role": role,}, status=status.HTTP_200_OK)
         return Response({"error": "Identifiants invalides"}, status=status.HTTP_401_UNAUTHORIZED)
 
 #Classe de déconnexion
@@ -56,5 +60,5 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        request.session.flush()  # Nettoyer la session
+        request.session.flush()  
         return Response({"message": "Déconnexion réussie"}, status=status.HTTP_200_OK)

@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="bg-center bg-cover min-h-screen"style="background-image: url('../public/images/background_register1.jpg');">
+  <div id="app" class="bg-center bg-cover min-h-screen">
 
     <!-- NavBar -->
     <nav v-if="!isAuthPage" class="bg-white shadow-lg">

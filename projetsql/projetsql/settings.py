@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'utilisateurs',
+    'exercices',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -162,8 +163,22 @@ AUTH_USER_MODEL = 'utilisateurs.Utilisateur'
 #SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '<your-client-id>'
 #SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '<your-client-secret>'
 
-
 #
 #STATICFILES_DIRS = [
 #    os.path.join(BASE_DIR, '../../vue-project/dist/static'),
 #]
+
+#Gestion des uploads
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+#Authentification securisée
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+}

@@ -62,12 +62,27 @@ export default {
           password: this.password,
         });
 
+        // Afficher la réponse de l'API pour le débogage
+        console.log('Réponse de l\'API:', response.data);
+        
+        //Recupération du token
+        localStorage.setItem('token', response.data.token);
+        //Recupération du role
+        localStorage.setItem('role', response.data.role);
+
+        console.log('Token:', localStorage.getItem('token'));
+        console.log('Role:', localStorage.getItem('role'));
         // Si la connexion est réussie
         console.log('Connexion réussie:', response.data);
         alert('Connexion réussie !');
 
-        // Rediriger vers la page d'accueil ou un tableau de bord après connexion réussie
-        this.$router.push('/');  // Redirige vers la page d'accueil (ou autre page)
+        //Redirection vers le tableau de bord en fonction du role
+        if (response.data.role === 'etudiant') {
+          this.$router.push({name:'DashboardEtudiant'});
+        } else if(response.data.role === 'professeur') {
+          this.$router.push({name:'DashboardProfesseur'});  
+        }
+          
       } catch (error) {
         console.error('Erreur lors de la connexion:', error.response?.data || error.message);
         alert('Erreur lors de la connexion. Vérifiez vos identifiants.');

@@ -49,31 +49,13 @@
               />
             </svg>
           </button>
-          <div class="relative">
-            <img
-              src="https://via.placeholder.com/40"
-              alt="Profil"
-              class="rounded-full cursor-pointer"
-              @click="toggleDropdown"
-            />
-            <div
-              v-if="dropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg"
-            >
-              <router-link
-                to="/profil"
-                class="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-              >
-                Profil
-              </router-link>
-              <button
-                @click="deconnexion"
-                class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-200"
-              >
-                Déconnexion
-              </button>
-            </div>
-          </div>
+          <!-- Bouton de déconnexion -->
+          <button
+            @click="deconnexion"
+            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+          >
+            Déconnexion
+          </button>
         </div>
       </header>
 
@@ -118,19 +100,11 @@
 <script>
 export default {
   name: 'Dashboard',
-  data() {
-    return {
-      dropdownOpen: false,
-    };
-  },
   methods: {
-    toggleDropdown() {
-      this.dropdownOpen = !this.dropdownOpen;
-    },
     deconnexion() {
-      // Logique pour déconnecter l'utilisateur
-      console.log('Déconnexion...');
-      this.$router.push('/connexion');
+      localStorage.removeItem('token');  // Supprimer le token
+      localStorage.removeItem('role');   // Supprimer le rôle
+      this.$router.push('/connexion');   // Rediriger vers la page de connexion
     },
   },
 };

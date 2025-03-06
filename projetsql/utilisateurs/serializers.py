@@ -2,12 +2,12 @@ from rest_framework import serializers
 from .models import Utilisateur, Classe
 
 class UserSerializer(serializers.ModelSerializer):
-    classe = serializers.PrimaryKeyRelatedField(queryset=Classe.objects.all())
+    classes = serializers.PrimaryKeyRelatedField(queryset=Classe.objects.all(), many=True)
     role = serializers.CharField(max_length=20) 
 
     class Meta:
         model = Utilisateur
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password', 'classe', 'role']
+        fields = ['id', 'email', 'prenom', 'nom', 'password', 'classe', 'classes', 'role']
         extra_kwargs = {
             'password': {'write_only': True}, 
         }

@@ -19,6 +19,16 @@
 
 <script>
 export default {
+  computed: {
+    isAuthenticated() {
+      return !!localStorage.getItem('token');  // Vérifier si l'utilisateur est authentifié
+    },
+  },
+  mounted() {
+    if (!this.isAuthenticated) {
+      this.$router.push('/connexion');  // Rediriger vers la page de connexion
+    }
+  },
   name: 'Accueil',
 };
 </script>

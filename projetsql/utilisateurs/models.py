@@ -39,6 +39,7 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
     prenom = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='etudiant')
+    classes = models.ManyToManyField(Classe, related_name='professeurs', blank=True)
     classe = models.ForeignKey(Classe, on_delete=models.SET_NULL, null=True, blank=True)  
     actif = models.BooleanField(default=True)
     date_joined = models.DateTimeField(auto_now_add=True)
