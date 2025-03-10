@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gray-100/50 flex items-center justify-center p-6">
+  <div class="items-center justify-items-center mt-10">
     
     <!-- Block principal -->
-    <div class="w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden flex">
+    <div class="grid grid-cols-1 md:grid-cols-2 w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
       
       <!-- Partie Formulaire d'inscription -->
-      <div class="w-2/3 p-8">
+      <div class=" p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Inscription</h2>
         <form @submit.prevent="sInscrire">
           <div class="flex flex-wrap -mx-3 mb-6">
@@ -28,14 +28,7 @@
               <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-email">
                 Email
               </label>
-              <input
-                name="email"
-                v-model="email"
-                class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="grid-email"
-                type="email"
-                required
-              />
+              <input name="email" v-model="email" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-email" type="email" required/>
             </div>
           </div>
 
@@ -46,12 +39,7 @@
               </label>
               <input
                 name="password"
-                v-model="password"
-                class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="grid-password"
-                type="password"
-                required
-              />
+                v-model="password" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-password" type="password" required/>
             </div>
           </div>
 
@@ -60,12 +48,7 @@
               <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-classe">
                 Classe
               </label>
-              <select
-                v-model="classe"
-                class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                id="grid-classe"
-                required
-              >
+              <select v-model="classe" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-classe" required>
                 <option v-for="classe in classes" :key="classe.id" :value="classe.id">
                   {{ classe.nom }}
                 </option>
@@ -75,9 +58,7 @@
 
           <div class="flex items-center justify-between">
             <button
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
+              class="mb-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
               S'inscrire
             </button>
           </div>
@@ -85,15 +66,12 @@
       </div>
 
       <!-- Partie droite : Message et bouton de redirection -->
-      <div class="w-1/3 bg-blue-500 text-white p-8 flex flex-col items-center justify-center">
+      <div class="bg-[#0f172b] text-white p-8 flex flex-col items-center justify-center">
         <h3 class="text-2xl font-bold mb-4">Déjà un compte ?</h3>
         <p class="text-center mb-6">
           Connectez-vous pour accéder à votre espace personnel.
         </p>
-        <router-link
-          to="/connexion"
-          class="bg-white text-blue-500 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
+        <router-link to="/connexion" class="bg-white text-black hover:text-white hover:bg-blue-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
           Se connecter
         </router-link>
       </div>
