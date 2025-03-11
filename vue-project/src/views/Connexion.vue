@@ -1,32 +1,32 @@
 <template>
-    <div class="justify-center items-center justify-items-center mt-10">
+    <div class="w-full h-screen items-center justify-items-center p-10 md:p-25" style="background-image: url(../../public/images/background-log.jpg);">
       <!-- Main Connexion Container -->
-      <div class=" grid grid-cols-1 md:grid-cols-2  gap-12 rounded-lg shadow-2xl ">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 rounded-lg shadow-2xl">
         
         <!-- Partie formulaire de connexion -->
-        <div class=" col-span-1 p-8 rounded-xl">
+        <div class=" col-span-1 p-8 rounded-xl bg-white/90">
           <h2 class="text-5xl font-bold text-black mb-6 font-light">Connexion</h2>
           <form @submit.prevent="seConnecter">
             <div class="mb-4">
-              <label class="block text-1xl text-white font-bold mb-2 font-light" for="email">
+              <label class="block text-1xl text-black font-bold mb-2 font-light" for="email">
                 Adresse Email
               </label>
               <input v-model="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-600 leading-tight focus:border-pink-100" id="email" type="email" required/>
             </div>
             <div class="mb-6">
-              <label class="block text-1xl text-white font-bold mb-2 font-light" for="password">
+              <label class="block text-1xl text-black font-bold mb-2 font-light" for="password">
                 Mot de passe
               </label>
               <input v-model="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:border-blue-100 " id="password" type="password" required/>
               <div>
-                <p>
+                <p class="text-gray-500">
                   J'ai oublié mon mot de passe
                 </p>
               </div>
             </div>
 
             <div class="items-center justify-items-center justify-center shadow-2xl">
-              <button class="w-full bg-[#0f172b] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+              <button class="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 w-full bg-[#0f172b] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
                 Se connecter
               </button>
             </div>
@@ -50,7 +50,7 @@
           <p class="text-center mb-8">
             Inscrivez-vous pour accéder à votre espace personnel.
           </p>
-          <router-link to="/inscription" class="bg-white text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          <router-link to="/inscription" class="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 bg-white text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
             S'inscrire
           </router-link>
   

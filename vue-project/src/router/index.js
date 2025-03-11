@@ -9,6 +9,9 @@ import DashboardProfesseur from '../views/DashboardProfesseur.vue';
 import Profil from '../views/Profil.vue';
 import Exercices from '../views/Exercices.vue';  
 import Data from '../views/Data.vue';
+import Correction from '../views/Correction.vue';
+import Test from '../views/Dash.vue';
+
 
 const routes = [
     //{ path: '/', component: Accueil },
@@ -21,6 +24,8 @@ const routes = [
     { path: '/exercices', component: Exercices, meta:{requiresAuth:true},},
     { path: '/profil', component: Profil, meta:{requiresAuth:true},},
     { path: '/donnees', component: Data, name:'Data', meta:{requiresAuth:true},},
+    { path: '/correction', component: Correction, name:'Correction', meta:{requiresAuth:true},},
+    { path: '/dash', component: Test, name:'Dash', meta:{requiresAuth:true},},
 ];
 
 const router = createRouter({

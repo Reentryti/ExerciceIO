@@ -1,5 +1,5 @@
 <template>
-  <div class="items-center justify-items-center mt-10">
+  <div class="w-full h-screen items-center justify-items-center p-10 md:p-25" style="background-image: url(../../public/images/background-log.jpg);">
     
     <!-- Block principal -->
     <div class="grid grid-cols-1 md:grid-cols-2 w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
@@ -49,6 +49,7 @@
                 Classe
               </label>
               <select v-model="classe" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-classe" required>
+                <option value="">-- Veuillez choisir une classe --</option>
                 <option v-for="classe in classes" :key="classe.id" :value="classe.id">
                   {{ classe.nom }}
                 </option>
@@ -58,7 +59,7 @@
 
           <div class="flex items-center justify-between">
             <button
-              class="mb-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+              class="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 mb-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
               S'inscrire
             </button>
           </div>
@@ -71,7 +72,7 @@
         <p class="text-center mb-6">
           Connectez-vous pour accéder à votre espace personnel.
         </p>
-        <router-link to="/connexion" class="bg-white text-black hover:text-white hover:bg-blue-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        <router-link to="/connexion" class=" transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 bg-white text-black hover:text-white hover:bg-blue-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
           Se connecter
         </router-link>
       </div>

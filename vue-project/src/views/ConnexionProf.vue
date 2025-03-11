@@ -14,7 +14,7 @@
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-      <form class="space-y-6" action="#" method="POST">
+      <form @submit.prevent="seConnecter">
         <div>
           <label for="email" class="block text-sm/6 font-medium text-gray-900">Adresse email</label>
           <div class="mt-2">
@@ -35,7 +35,7 @@
         </div>
 
         <div>
-          <button type="submit" class="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          <button type="submit" class="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             Se connecter
           </button>
         </div>
