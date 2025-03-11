@@ -117,14 +117,41 @@
         }
       },
   
-      connexionGoogle() {
-        // Redirection vers l'URL d'authentification Google
-        window.location.href = 'http://127.0.0.1:8000/accounts/google/login/';
+      async connexionGoogle() {
+        try {
+          // Ouvrir une fenêtre popup pour l'authentification Google
+          const googleAuthUrl = 'http://localhost:8000/accounts/google/login/';
+          const popup = window.open(googleAuthUrl, 'Connexion Google', 'width=500,height=600');
+
+          // Écouter les messages du popup
+          window.addEventListener('message', (event) => {
+            if (event.origin !== 'http://127.0.0.1:8000') return; // Vérifier l'origine du message
+            if (event.data.token) {
+              // Stocker le token et rediriger
+              localStorage.setItem('token', event.data.token);
+              localStorage.setItem('role', event.data.role);
+              this.$router.push({ name: 'DashboardEtudiant' }); // Redirection en fonction du rôle
+            }
+          });
+        } catch (error) {
+          console.error('Erreur lors de la connexion Google:', error);
+        }
       },
-  
-      inscriptionGoogle() {
+
+
+      async inscriptionGoogle() {
+        try{ 
+          const googleAuthUrl = 'hhtp://localhost:8000/accounts/google/login/';
+          const popup = window.open(googleAuthUrl, 'Inscription Google', 'width=500, height=600');
+          window.addEventListener('message', (event) => {
+
+          });
+
+        }catch(error){
+          
+        }
         // Redirection vers l'URL d'inscription Google
-        window.location.href = 'http://127.0.0.1:8000/accounts/google/signup/';
+       
       },
     },
   };

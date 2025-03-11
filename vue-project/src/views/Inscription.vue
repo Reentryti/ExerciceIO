@@ -6,6 +6,21 @@
       
       <!-- Partie Formulaire d'inscription -->
       <div class=" p-8">
+        <div>
+          <div>
+            <p>
+              S'inscrire avec :
+            </p>
+          </div>
+          <div>
+            <button @click="inscriptionGoogle">
+              Google
+            </button>
+            <button @click="inscriptionGithub">
+              Github
+            </button>
+          </div>
+        </div>
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Inscription</h2>
         <form @submit.prevent="sInscrire">
           <div class="flex flex-wrap -mx-3 mb-6">
@@ -127,13 +142,18 @@ export default {
         alert('Erreur lors de l’inscription. Veuillez réessayer.');
       }
     },
+    
+    inscriptionGoogle(){
+      window.location.href = 'http://localhost:8000/accounts/google/login/';
+    },
+    signGithub(){
+      window.location.href = 'http://127.0.0.1:8000/accounts/github/signup/';
+    },
   },
 };
 </script>
 
 <style scoped>
 /* Styles spécifiques à la page d'inscription */
-#app{
-  display: none;
-}
+
 </style>
