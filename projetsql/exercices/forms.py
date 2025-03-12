@@ -12,6 +12,7 @@ class ExerciceForm(forms.Model):
         model = Exercice
         fields = ['titre', 'description', 'classe_affected', 'fileExercice']
         widgets = {
+            'date_a_soumettre': forms.DateTimeInput(attrs={''}),
             'description' : forms.Textarea(attrs={'rows':4}),
             'classes' : forms.CheckboxSelectMultiple,
         }

@@ -9,6 +9,7 @@ class Exercice(models.Model):
     titre = models.CharField(max_length=100)
     description = models.TextField()
     date_creation = models.DateTimeField(auto_now_add=True)
+    date_a_soumettre = models.DateTimeField()
     createur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='exercices_crees')
     classe_affected = models.ManyToManyField(Classe, related_name='exercices', blank=True)
     fichier = models.FileField(upload_to='exercices/', blank=True, null=True)

@@ -22,14 +22,19 @@ class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            #Existence de la classe?
-            classe_name = request.data.get('classe')
-            if not Classe.objects.filter(nom=classe_name).exists():
+            # Existence de la classe ?
+            classe_id = request.data.get('classe')
+            try:
+                classe = Classe.objects.get(nom=classe_id)  # Récupérer l'objet Classe
+                user.classe = classe
+            except Classe.DoesNotExist:
                 return Response({'error': 'Classe invalide'}, status=status.HTTP_400_BAD_REQUEST)
-            #Creation utilisateur
+
+            # Création de l'utilisateur
             user = serializer.save()
-            user.classe = classe
+            user.classe = classe 
             user.save()
+
             login(request, user)
             return Response({"message": "Utilisateur créé avec succès"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

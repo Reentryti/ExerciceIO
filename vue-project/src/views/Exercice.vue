@@ -1,30 +1,39 @@
 <template>
-    <div class="exercices-container">
+    <div class="w-full md:w-2/3 bg-blue-100 rounded-lg">
       <!-- Formulaire pour déposer un exercice (visible uniquement par les professeurs) -->
-      <div v-if="user.role === 'professeur'" class="form-container">
-        <h2>Déposer un nouvel exercice</h2>
+      <div v-if="user.role === 'professeur'" class="p-12 ">
+        <h2 class="text-lg font-light">Déposer un nouvel exercice</h2>
         <form @submit.prevent="deposerExercice">
-          <div class="form-group">
-            <label for="titre">Titre :</label>
-            <input v-model="nouvelExercice.titre" type="text" id="titre" required />
+          <div class=" mt-8">
+            <label for="titre" class="block font-light mb-3">Titre exercice</label>
+            <input v-model="nouvelExercice.titre" placeholder="Nom de l'exercice" class="p-2 rounded bg-gray-100 outline-black outline-1 focus:outline-2 focus:outline-blue-500 " type="text" id="titre" required />
           </div>
-          <div class="form-group">
-            <label for="description">Description :</label>
-            <textarea v-model="nouvelExercice.description" id="description" required></textarea>
+          <div class="mt-5">
+            <label for="description" class="block mb-3">Instructions</label>
+            <textarea v-model="nouvelExercice.description" placeholder="Consignes supplémentaires" class="block w-full rounded-md bg-gray-100 px-5 py-5 text-gray-900 outline-1 -outline-offset-1 outline-black placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 " id="description" required></textarea>
           </div>
-          <div class="form-group">
-            <label for="classes">Classes :</label>
-            <select v-model="nouvelExercice.classes" id="classes" multiple>
-              <option v-for="classe in classes" :key="classe.id" :value="classe.id">
-                {{ classe.nom }}
-              </option>
-            </select>
+          <div class="grid grid-cols-1 md:grid-cols-2 mt-6">
+            <div class="p-4">
+              <label for="date" class="block text-sm font-medium text-gray-700">Sélectionner une date :</label>
+              <input type="date" id="date" v-model="selectedDate"  class="mt-1 p-2 border rounded w-full"/>
+            </div>
+            <div class="w-full p-4">
+              <label for="classes" class="block">Classes </label>
+              <select v-model="nouvelExercice.classes" id="classes" required class="block appearance-none w-full bg-gray-100 text-black py-3 px-4 pr-8 rounded">
+                <option value="">---Veuillez choisir une classe-----</option>
+                <option v-for="classe in classes" :key="classe.id" :value="classe.id">
+                  {{ classe.nom }}
+                </option>
+              </select>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="fichier">Fichier :</label>
-            <input type="file" id="fichier" @change="onFileChange" />
+          <div class="border mt-8">
+            <input type="file" id="fichier" @change="onFileChange" class="text-white"/>
           </div>
-          <button type="submit" class="btn-submit">Déposer</button>
+          <button type="submit" class="mt-4 border bg-blue-500 py-2 px-4 rounded-xl" :disabled="isLoading">
+            <span v-if="isLoading">Chargement...</span>
+            <span v-else>Déposer</span>
+          </button>
         </form>
       </div>
   
@@ -61,7 +70,9 @@
           description: '',
           classes: [],
           fichier: null,
+          dateLimite:'',
         },
+        selectedDate:'',
       };
     },
     created() {
@@ -91,11 +102,13 @@
       onFileChange(event) {
         this.nouvelExercice.fichier = event.target.files[0];
       },
+
       async deposerExercice() {
         const formData = new FormData();
         formData.append('titre', this.nouvelExercice.titre);
         formData.append('description', this.nouvelExercice.description);
         formData.append('classes', JSON.stringify(this.nouvelExercice.classes));
+        formData.append('dateLimite', this.selectedDate);
         if (this.nouvelExercice.fichier) {
           formData.append('fichier', this.nouvelExercice.fichier);
         }
@@ -119,75 +132,4 @@
   </script>
   
   <style scoped>
-  .exercices-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .form-container {
-    margin-bottom: 40px;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  input[type="text"],
-  textarea,
-  select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  textarea {
-    resize: vertical;
-    min-height: 100px;
-  }
-  
-  .btn-submit {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .btn-submit:hover {
-    background-color: #45a049;
-  }
-  
-  .liste-exercices {
-    margin-top: 40px;
-  }
-  
-  .exercice-item {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 20px;
-  }
-  
-  .exercice-item h3 {
-    margin-top: 0;
-  }
-  
-  .exercice-item a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .exercice-item a:hover {
-    text-decoration: underline;
-  }
   </style>

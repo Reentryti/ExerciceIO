@@ -1,8 +1,7 @@
 <template>
-    <div class="min-h-screen bg-gray-100 p-8">
-      <div class="max-w-7xl mx-auto">
+    <div class="">
+      <div class=" mx-auto">
         <!-- Titre de la page -->
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">Mes Performances</h1>
   
         <!-- Grille pour les graphiques -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -5,7 +5,7 @@
       <div class="bg-white flex flex-wrap w-full">
 
         <!-- Bloc de bienvenue -->
-        <div class="mx-auto max-w-md h-96  overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl">
+        <div class="mx-auto max-w-md h-96 overflow-hidden rounded-xl bg-white shadow-md md:max-w-2xl">
           <div class="md:flex ">
             <div class="md:shrink-0 ">
               <img class="h-48 w-full object-cover md:h-96 md:w-96" src="../../public/images/bdd.jpg" alt="BackgroundImage"/>
@@ -28,10 +28,10 @@
         </div>
 
         <!-- Bloc d'activités -->
-        <div class="grid md:grid-cols-3 grid-cols-1 gap-8 w-full h-full md:h-80 mt-10 mb-7 px-6 ">
+        <div class="grid md:grid-cols-3 grid-cols-1 gap-8 w-full md:w-full h-full md:h-full mt-10 mb-20 px-6 md:px-20 ">
 
           <!-- Sous-bloc exercices -->
-          <div class="h-96 bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
+          <div class="flex col-span-1  h-96 bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
             <div>
               <h3 class="text-gray-900 mt-5 text-base font-bold tracking-tight">
                 Exercices à rendre
@@ -39,27 +39,69 @@
               <p class="text-gray-500 mt-2 text-sm ">
                 Vous n'avez aucun exercice à remettre
               </p>
+              <div class="border w-full">
+                <ul role="list" class="divide-y divide-gray-100">
+                  <li v-for="person in people" :key="person.email" class="flex justify-between gap-x-6 py-5">
+                    <div class="flex min-w-0 gap-x-4">
+                      <div class="min-w-0 flex-auto">
+                        <p class="text-sm/6 font-semibold text-gray-900">{{ person.name }}</p>
+                        <p class="mt-1 truncate text-xs/5 text-gray-500">{{ person.email }}</p>
+                      </div>
+                    </div>
+                    <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                      <p class="text-sm/6 text-gray-900">{{ person.role }}</p>
+                      <p v-if="person.lastSeen" class="mt-1 text-xs/5 text-gray-500">
+                        Last seen <time :datetime="person.lastSeenDateTime">{{ person.lastSeen }}</time>
+                      </p>
+                      <div v-else class="mt-1 flex items-center gap-x-1.5">
+                        <div class="flex-none rounded-full bg-emerald-500/20 p-1">
+                          <div class="size-1.5 rounded-full bg-emerald-500" />
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
           
           <!-- Sous-bloc notes -->
-          <div class="bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
+          <div class="col-span-2 bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
             <div>
               <h3 class="text-gray-900 mt-5 text-base font-bold tracking-tight">
-                Note moyenne
+                Statistiques
               </h3>
-              <p class="text-gray-500 mt-2 text-sm ">
+              <div class="mt-2">
+                <Data />
+              </div>
+            </div>
+          </div>
+          
+         
+          <!-- Sous-bloc classes -->
+          <div class="col-span-2 bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
+            <div>
+              <h3 class="text-gray-900 mt-5 text-base font-bold tracking-tight">
+                Ressources
+              </h3>
+              <p class="text-gray-500 mt-2 text-sm">
                 Vous n'avez aucun exercice à remettre
               </p>
             </div>
           </div>
-          
-          <!-- Sous-bloc classes -->
-          <div class="bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
-            <div>
+
+
+          <!-- Sous-bloc ressources -->
+          <div class="col-span-1 bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5 text-center ">
+            <div class="items-center justify-items-center">
               <h3 class="text-gray-900 mt-5 text-base font-bold tracking-tight">
-                Progression
+                Moyenne de la classe
               </h3>
+              <div class="bg-red-400 rounded-full size-30 text-center flex items-center justify-center mt-3">
+                <p class="text-white text-5xl font-extrabold">
+                  13/20
+                </p>
+              </div>
               <p class="text-gray-500 mt-2 text-sm">
                 Vous n'avez aucun exercice à remettre
               </p>
@@ -69,7 +111,7 @@
         </div>
 
         <!-- Bloc de ressources-->
-        <div class="mt-20 mx-auto max-w-md h-64 overflow-hidden rounded-xl bg-white shadow-md md:max-w-full text-align-left px-8 py-8">
+        <!-- <div class="mt-20 mx-auto max-w-md h-64 overflow-hidden rounded-xl bg-white shadow-md md:max-w-full text-align-left px-8 py-8">
           <div class="">
             <p class="text-4xl">Cours & Révisions</p>
             <p class="text-gray-500 text-xl mt-5 text-justify">Envie d'approfondir tes connaissances en matière de bases de données ? Apprends tes cours et accéde à un large éventail de documents</p>
@@ -77,7 +119,7 @@
           <div class="mt-8 underline">
             <a href="">Suivre ce lien pour accéder aux cours ></a>
           </div>
-        </div>
+        </div> -->
 
     </div>
  </main>
@@ -87,9 +129,13 @@
 
 <script>
 import axios from 'axios';
+import Data from "./Data.vue"
 
 export default {
   name: 'Dashboard',
+  components:{
+    Data
+  },
   data(){
     return {
       user:null, 

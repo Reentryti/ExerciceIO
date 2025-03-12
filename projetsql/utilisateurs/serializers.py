@@ -20,6 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
         #Mot de passe
         user.set_password(password)
         user.save()
+        print("Données reçues après validation :", validated_data)
         return user
 
 class ClasseSerializer(serializers.ModelSerializer):

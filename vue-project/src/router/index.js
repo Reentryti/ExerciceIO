@@ -11,6 +11,7 @@ import Exercices from '../views/Exercices.vue';
 import Data from '../views/Data.vue';
 import Correction from '../views/Correction.vue';
 import Test from '../views/Dash.vue';
+import AddExercice from '../views/Exercice.vue';
 
 
 const routes = [
@@ -19,11 +20,12 @@ const routes = [
     { path: '/connexion', component: Connexion, name:'Login'},
     { path: '/connexion-professeur', component: ConnexionProf, name:'LoginProf'},
     { path: '/inscription', component: Inscription, name:'SignIn' },
-    { path: '/dashboard-etudiant', component: DashboardEtudiant, name:'DashboardEtudiant',meta:{requiresAuth:true},},
-    { path: '/dashboard-professeur', component: DashboardProfesseur, name:'DashboardProfesseur', meta:{requiresAuth:true},},
+    { path: '/dashboard-etudiant', component: DashboardEtudiant, name:'DashboardEtudiant',meta:{requiresAuth:false},},
+    { path: '/dashboard-professeur', component: DashboardProfesseur, name:'DashboardProfesseur', meta:{requiresAuth:false},},
     { path: '/exercices', component: Exercices, meta:{requiresAuth:true},},
+    { path: '/add-exercice', component : AddExercice, meta:{requiresAuth:false},},
     { path: '/profil', component: Profil, meta:{requiresAuth:true},},
-    { path: '/donnees', component: Data, name:'Data', meta:{requiresAuth:true},},
+    { path: '/donnees', component: Data, name:'Data', meta:{requiresAuth:false},},
     { path: '/correction', component: Correction, name:'Correction', meta:{requiresAuth:true},},
     { path: '/dash', component: Test, name:'Dash', meta:{requiresAuth:true},},
 ];

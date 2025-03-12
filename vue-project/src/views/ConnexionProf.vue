@@ -34,7 +34,7 @@
           </div>
         </div>
 
-        <div>
+        <div class="mt-8">
           <button type="submit" class="transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110 flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             Se connecter
           </button>
@@ -84,7 +84,10 @@
             //Redirection vers le tableau de bord en fonction du role
             if (response.data.role === 'professeur') {
               this.$router.push({name:'DashboardProfesseur'});
+            }else if(response.data.role === 'etudiant'){
+              this.$router.push({name:'DashboardEtudiant'});
             }
+            
               
           } catch (error) {
             console.error('Erreur lors de la connexion:', error.response?.data || error.message);
