@@ -12,10 +12,16 @@ class ExerciceForm(forms.Model):
         model = Exercice
         fields = ['titre', 'description', 'classe_affected', 'fileExercice']
         widgets = {
-            'date_a_soumettre': forms.DateTimeInput(attrs={''}),
+            'date_a_soumettre': forms.DateTimeInput(attrs={'type':'datetime-local'}),
             'description' : forms.Textarea(attrs={'rows':4}),
             'classes' : forms.CheckboxSelectMultiple,
         }
+        
+    def clean_date_a_soumettre(self):
+        date_a_soumettre = self.cleaned_data.get('date_a_soumettre')
+        if date_a_soumettre and date_a_soumettre < timezone.now():
+            raise ValidationError("La date de soumission passée.")
+        return date_a_soumettre
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -13,14 +13,21 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        classes_data = validated_data.pop('classes',[])
+        print("Classes reçues :", classes_data)  # Debug
         #Hash du mot de passe
         password = validated_data.pop('password')
         #Creation de l'utilisateur avec les donnees valides
         user = Utilisateur.objects.create_user(**validated_data)
         #Mot de passe
         user.set_password(password)
+
+        if classes_data:
+            user.classes.set(classes_data)
+        user.classes.set(classes_data)
         user.save()
         print("Données reçues après validation :", validated_data)
+        print("classes associés", user.classes.all())
         return user
 
 class ClasseSerializer(serializers.ModelSerializer):

@@ -7,7 +7,7 @@ class ExerciceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exercice
-        fields = ['id', 'titre', 'description', 'classe_affected', 'fichier', 'createur', 'date_creation']
+        fields = ['id', 'titre', 'description', 'classe_affected', 'fichier', 'createur', 'date_creation', 'date_a_soumettre']
         #Champs statiques
         read_only_fields = ['createur', 'date_creation']
 
@@ -23,5 +23,5 @@ class SolutionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['etudiant'] = self.context['request'].user
-        validated_data['etudiant'] = self.context['exercice']
+        validated_data['exercice'] = self.context['exercice']
         return super().create(validated_data)

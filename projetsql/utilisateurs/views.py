@@ -22,22 +22,23 @@ class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            # Existence de la classe ?
-            classe_id = request.data.get('classe')
-            try:
-                classe = Classe.objects.get(nom=classe_id)  # Récupérer l'objet Classe
-                user.classe = classe
-            except Classe.DoesNotExist:
-                return Response({'error': 'Classe invalide'}, status=status.HTTP_400_BAD_REQUEST)
+            # Récupération des classes à partir des IDs fournis
+            classes_ids = request.data.get("classes", [])
+            classes = Classe.objects.filter(id__in=classes_ids)
+
+            if not classes.exists():
+                return Response({"error": "Aucune classe valide trouvée"}, status=status.HTTP_400_BAD_REQUEST)
 
             # Création de l'utilisateur
             user = serializer.save()
-            user.classe = classe 
+            user.classes.set(classes)  # Associer les classes au professeur
             user.save()
 
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return Response({"message": "Utilisateur créé avec succès"}, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 #Classe classe
 class ClasseListView(APIView):
@@ -67,7 +68,7 @@ class LoginView(APIView):
             #}, status=status.HTTP_200_OK)
             token, created = Token.objects.get_or_create(user=user)
             role = user.role
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return Response({"message": "Connexion réussie", "token": token.key, "role": role,}, status=status.HTTP_200_OK)
         return Response({"error": "Identifiants invalides"}, status=status.HTTP_401_UNAUTHORIZED)
 

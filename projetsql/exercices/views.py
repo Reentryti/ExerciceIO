@@ -36,6 +36,9 @@ class SoumettreSolutionView(APIView):
         except Exercice.DoesNotExist:
             return Response({"error": "Exercice non trouvé"}, status=status.HTTP_404_NOT_FOUND)
 
+        if timezone.nom() > exercice.date_a_soumettre:
+            return Response({"error":"La date de soumission est dépassée"}, status=status.HTTP_400_BAD_REQUEST)
+            
         serializer = SolutionSerializer(data=request.data, context={'request': request, 'exercice': exercice})
         if serializer.is_valid():
             serializer.save()

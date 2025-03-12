@@ -26,7 +26,8 @@ class UtilisateurManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('role', 'professeur')
-        extra_fields.setdefault('classe', None)
+        #extra_fields.setdefault('classe', None)
+        extra_fields.setdefault('classes', None)
         return self.create_user(email, prenom, nom, password, **extra_fields)
 
 #Modele personnalisé d'utilisateur
