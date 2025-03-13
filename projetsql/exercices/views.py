@@ -6,6 +6,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import ExerciceSerializer, SolutionSerializer
+from rest_framework.permissions import IsAuthenticated
+
 
 # Create your views here.
 
@@ -55,3 +57,17 @@ class ListeSolutionsView(APIView):
         solutions = Solution.objects.filter(exercice=exercice)
         serializer = SolutionSerializer(solutions, many=True)
         return Response(serializer.data)
+
+
+class ProfesseurExercicesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Vérifier que l'utilisateur est un professeur
+        if not request.user.is_staff:
+            return Response({"error": "Accès refusé. Seuls les professeurs peuvent accéder à cette ressource."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Récupérer les exercices créés par le professeur connecté
+        exercices = Exercice.objects.filter(createur=request.user)
+        serializer = ExerciceSerializer(exercices, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

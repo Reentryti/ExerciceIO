@@ -31,7 +31,7 @@
         <div class="grid md:grid-cols-3 grid-cols-1 gap-8 w-full md:w-full h-full md:h-full mt-10 mb-20 px-6 md:px-20 ">
 
           <!-- Sous-bloc exercices -->
-          <div class="flex col-span-1  h-96 bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
+          <div class="flex col-span-1 h-96 bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
             <div>
               <h3 class="text-gray-900 mt-5 text-base font-bold tracking-tight">
                 Exercices à rendre

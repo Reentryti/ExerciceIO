@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index, RegisterView, LoginView, LogoutView, ClasseListView, UserProfileView
+from .views import index, RegisterView, LoginView, LogoutView, ClasseListView, UserProfileView, ProfesseurClassesView
 
 urlpatterns = [
     # Page d'accueil
@@ -14,4 +14,5 @@ urlpatterns = [
     path('classes/', ClasseListView.as_view(), name='classe-list'),
     #API pour récupérer le nom de l'utilisateur
     path('user/', UserProfileView.as_view(), name='user-profile'),
+    path('professeur/classes/', ProfesseurClassesView.as_view(), name='professeur_classes'),
 ]

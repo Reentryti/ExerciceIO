@@ -120,3 +120,17 @@ class ChangePasswordView(APIView):
         update_session_auth_hash(request, user)
 
         return Response({"message": "Mot de passe changé avec succès"}, status=status.HTTP_200_OK)
+
+
+class ProfesseurClassesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Vérifier que l'utilisateur est un professeur
+        if not request.user.is_staff:
+            return Response({"error": "Accès refusé. Seuls les professeurs peuvent accéder à cette ressource."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Récupérer les classes enseignées par le professeur connecté
+        classes = request.user.classes.all()
+        serializer = ClasseSerializer(classes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
