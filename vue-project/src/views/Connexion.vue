@@ -105,11 +105,7 @@
           alert('Connexion réussie !');
   
           //Redirection vers le tableau de bord en fonction du role
-          if (response.data.role === 'etudiant') {
-            this.$router.push({name:'DashboardEtudiant'});
-          } else if(response.data.role === 'professeur') {
-            this.$router.push({name:'DashboardProfesseur'});  
-          }
+          this.$router.push({name:'DashboardEtudiant'});
             
         } catch (error) {
           console.error('Erreur lors de la connexion:', error.response?.data || error.message);

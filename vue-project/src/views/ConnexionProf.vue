@@ -18,7 +18,7 @@
         <div>
           <label for="email" class="block text-sm/6 font-medium text-gray-900">Adresse email</label>
           <div class="mt-2">
-            <input type="email" name="email" id="email" autocomplete="email" required="" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6" />
+            <input v-model="email" type="email" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6" />
           </div>
         </div>
 
@@ -30,7 +30,7 @@
             </div>
           </div>
           <div class="mt-2">
-            <input type="password" name="password" id="password" autocomplete="" required="" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+            <input v-model="password" type="password" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
           </div>
         </div>
 
@@ -80,14 +80,8 @@
             console.log('Connexion réussie:', response.data);
             alert('Connexion réussie !');
             
-            
             //Redirection vers le tableau de bord en fonction du role
-            if (response.data.role === 'professeur') {
               this.$router.push({name:'DashboardProfesseur'});
-            }else if(response.data.role === 'etudiant'){
-              this.$router.push({name:'DashboardEtudiant'});
-            }
-            
               
           } catch (error) {
             console.error('Erreur lors de la connexion:', error.response?.data || error.message);
