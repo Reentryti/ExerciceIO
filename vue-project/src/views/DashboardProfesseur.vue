@@ -8,7 +8,7 @@
     <main>
       <div class="mx-auto max-w-7xl">
         <!-- Bloc principal -->
-        <div class="border grid md:grid-cols-3 grid-cols-1 gap-8 p-4">
+        <div class=" grid md:grid-cols-3 grid-cols-1 gap-8 p-4">
           <!-- Sous-bloc : Mes Exercices -->
           <div class="col-span-1 row-span-2 ring rounded-lg py-8 px-6">
             <h2 class="text-xl font-semibold mb-4">Mes Exercices</h2>
@@ -20,10 +20,22 @@
               </ul>
             </div>
             <p v-else class="p-2 bg-gray-100 rounded-lg">Aucun exercice créé.</p>
+            <div>
+              <button @click="popupExercice">
+                Déposer un exercice
+              </button>
+              <!-- Popup Exercice -->
+              <div v-if="popupOpen" class="">
+                <div class="">
+                  <button class="" @click="popupClose">×</button>
+                  <Exercice @exercise-added="handleExerciseAdded" />
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Sous-bloc : Corrections -->
-          <div class="col-span-2 row-span-1 ring rounded-lg py-8 px-6">
+          <div class="col-span-2 row-span-1 shadow-md rounded-lg py-8 px-6">
             <h2 class="text-xl font-semibold mb-4">Corrections</h2>
             <div v-if="corrections.length > 0">
               <ul class="space-y-2">
@@ -37,13 +49,13 @@
           </div>
 
           <!-- Sous-bloc : Mes classes -->
-          <div class="col-span-1 row-span-1 ring rounded-lg py-8 px-6">
+          <div class="col-span-1 row-span-1 shadow-md rounded-lg py-8 px-6">
             <h2 class="text-xl font-semibold mb-4">Mes classes</h2>
             <div v-if="loading" class="text-center">
               <p>Chargement...</p>
             </div>
             <ul v-else-if="classes.length > 0" class="space-y-2">
-              <li v-for="classe in classes" :key="classe.id" class="p-2 bg-gray-100 rounded-lg">
+              <li v-for="classe in classes" :key="classe.id" class="p-2 bg-red-200 rounded-lg">
                 {{ classe.nom }}
               </li>
             </ul>
@@ -51,7 +63,7 @@
           </div>
 
           <!-- Sous-bloc : Moyenne des classes -->
-          <div class="col-span-1 row-span-1 ring rounded-lg py-8 px-6">
+          <div class="col-span-1 row-span-1 shadow-md rounded-lg py-8 px-6">
             <h2 class="text-xl font-semibold mb-4">Moyenne des classes</h2>
             <div v-if="moyennes.length > 0">
               <ul class="space-y-2">
@@ -71,10 +83,15 @@
 
 <script>
 import axios from 'axios';
+import Exercice from './Exercice.vue';
 
 export default {
+  components:{
+    Exercice,
+  },
   data() {
     return {
+      popupOpen:false,
       classes: [],
       exercices: [],
       corrections: [],
@@ -106,7 +123,15 @@ export default {
         this.loading = false;
       }
     },
-   
+    popupExercice(){
+      this.popupOpen = true;
+    },
+    popupClose(){
+      this.popupOpen = false;
+    },
+    handleExerciseAdded(){
+      this.popupClose();
+    },
   }
 };
 </script>
