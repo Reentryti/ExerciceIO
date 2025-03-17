@@ -1,25 +1,31 @@
 <template>
-    <div class="w-full md:w-2/3 bg-blue-100 rounded-lg">
-      <!-- Formulaire pour déposer un exercice (visible uniquement par les professeurs) -->
-      <div v-if="user.role === 'professeur'" class="p-12 ">
-        <h2 class="text-lg font-light">Déposer un nouvel exercice</h2>
+    <div class="w-full bg-white rounded-lg shadow-lg">
+      <!-- Formulaire pour dépot d'exercice  -->
+      <div v-if="user.role === 'professeur'" class="p-10">
+        <h2 class=" bg-gradient-to-r from-red-500 to-violet-500 bg-clip-text text-3xl font-extrabold text-transparent">Dépôt Exercice</h2>
+        <!-- Formulaire -->
         <form @submit.prevent="deposerExercice">
+          <!-- Titre de l'exercice -->
           <div class=" mt-8">
             <label for="titre" class="block font-light mb-3">Titre exercice</label>
-            <input v-model="nouvelExercice.titre" placeholder="Nom de l'exercice" class="p-2 rounded bg-gray-100 outline-black outline-1 focus:outline-2 focus:outline-blue-500 " type="text" id="titre" required />
+            <input v-model="nouvelExercice.titre" placeholder="Nom de l'exercice" class="p-2 rounded bg-gray-100 outline-black outline-1 focus:outline-2  " type="text" id="titre" required />
           </div>
+          <!-- Instructions de l'exercice -->
           <div class="mt-5">
             <label for="description" class="block mb-3">Instructions</label>
-            <textarea v-model="nouvelExercice.description" placeholder="Consignes supplémentaires" class="block w-full rounded-md bg-gray-100 px-5 py-5 text-gray-900 outline-1 -outline-offset-1 outline-black placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 " id="description" required></textarea>
+            <textarea v-model="nouvelExercice.description" placeholder="Voici ce qu'il y a à faire" class="block w-full rounded-md bg-gray-100 p-2  outline-1 -outline-offset-1 outline-black placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 " id="description" required></textarea>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 mt-6">
-            <div class="p-4">
-              <label for="date" class="block text-sm font-medium text-gray-700">Sélectionner une date :</label>
-              <input type="date" id="date" v-model="selectedDate"  class="mt-1 p-2 border rounded w-full"/>
+          <!-- Date et Classe  -->
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mt-6">
+            <!-- Date de soumission -->
+            <div class="">
+              <label for="date" class="block mb-3">Date Limite</label>
+              <input type="date" id="date" v-model="selectedDate" required class="p-3 border rounded w-full bg-gray-100"/>
             </div>
-            <div class="w-full p-4">
-              <label for="classes" class="block">Classes </label>
-              <select v-model="nouvelExercice.classes" id="classes" required class="block appearance-none w-full bg-gray-100 text-black py-3 px-4 pr-8 rounded">
+            <!-- Classe affectée -->
+            <div class="w-full">
+              <label for="classes" class="block mb-3">Classes </label>
+              <select v-model="nouvelExercice.classes" id="classes" required class="border w-full bg-gray-100 text-black p-3 rounded">
                 <option value="">---Veuillez choisir une classe-----</option>
                 <option v-for="classe in classes" :key="classe.id" :value="classe.id">
                   {{ classe.nom }}
@@ -27,27 +33,25 @@
               </select>
             </div>
           </div>
+          <!-- Upload -->
           <div class="border mt-8">
-            <input type="file" id="fichier" @change="onFileChange" class="text-white"/>
+            <input type="file" @change="onFileChange" class="hidden" ref="fileUpload" accept=".txt, .pdf"/>
+            <button @click="openFile" class="bg-red-400 text-white rounded-lg px-4 py-2 transition duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+              </svg>
+              <span>Choisir un fichier</span>
+            </button>
+            <p v-if="selectedFile" class="text-black">
+              {{ selectedFile.name }}
+            </p>
           </div>
-          <button type="submit" class="mt-4 border bg-blue-500 py-2 px-4 rounded-xl" :disabled="isLoading">
+          <!-- Bouton d'envoi -->
+          <button type="submit" class="mt-4 border bg-gray-500 text-white py-2 px-4 rounded-xl hover:bg-red-400 hover:font-bold" :disabled="isLoading">
             <span v-if="isLoading">Chargement...</span>
             <span v-else>Déposer</span>
           </button>
         </form>
-      </div>
-  
-      <!-- Liste des exercices -->
-      <div class="liste-exercices">
-        <h2>Exercices</h2>
-        <ul>
-          <li v-for="exercice in exercices" :key="exercice.id" class="exercice-item">
-            <h3>{{ exercice.titre }}</h3>
-            <p>{{ exercice.description }}</p>
-            <p>Classes : {{ exercice.classes.join(', ') }}</p>
-            <a v-if="exercice.fichier" :href="exercice.fichier" target="_blank">Télécharger le fichier</a>
-          </li>
-        </ul>
       </div>
     </div>
   </template>
@@ -59,12 +63,13 @@
     name: 'Exercices',
     data() {
       return {
+        selectedFile: null,
         user: {
           id: 1,  // Remplacez par l'ID de l'utilisateur connecté
           role: 'professeur',  // Remplacez par le rôle de l'utilisateur connecté
         },
         classes: [],  // Liste des classes récupérées depuis l'API
-        exercices: [],  // Liste des exercices récupérés depuis l'API
+        //exercices: [],  // Liste des exercices récupérés depuis l'API
         nouvelExercice: {
           titre: '',
           description: '',
@@ -77,7 +82,7 @@
     },
     created() {
       this.chargerClasses();
-      this.chargerExercices();
+      //this.chargerExercices();
     },
     methods: {
       async chargerClasses() {
@@ -88,21 +93,14 @@
           console.error('Erreur lors du chargement des classes:', error);
         }
       },
-      async chargerExercices() {
-        try {
-          const url = this.user.role === 'professeur'
-            ? 'http://127.0.0.1:8000/exercices/'
-            : 'http://127.0.0.1:8000/exercices/liste/';
-          const response = await axios.get(url);
-          this.exercices = response.data;
-        } catch (error) {
-          console.error('Erreur lors du chargement des exercices:', error);
-        }
+      openFile(){
+        this.$refs.fileUpload.click();
       },
+
       onFileChange(event) {
         this.nouvelExercice.fichier = event.target.files[0];
       },
-
+      //Function 
       async deposerExercice() {
         const formData = new FormData();
         formData.append('titre', this.nouvelExercice.titre);
