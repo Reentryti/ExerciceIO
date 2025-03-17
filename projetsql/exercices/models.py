@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from utilisateurs.models import Classe
+from django.utils import timezone
 
 # Create your models here.
 
@@ -9,7 +10,7 @@ class Exercice(models.Model):
     titre = models.CharField(max_length=100)
     description = models.TextField()
     date_creation = models.DateTimeField(auto_now_add=True)
-    date_a_soumettre = models.DateTimeField()
+    date_a_soumettre = models.DateTimeField(default=timezone.now)
     createur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='exercices_crees')
     classe_affected = models.ManyToManyField(Classe, related_name='exercices', blank=True)
     fichier = models.FileField(upload_to='exercices/', blank=True, null=True)

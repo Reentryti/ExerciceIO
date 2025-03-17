@@ -154,8 +154,10 @@ AUTHENTICATION_BACKENDS = (
 #Liaison avec le frontend
 CORS_ALLOW_ALL_ORIGINS = True
 
+
     #["http://localhost:5173",]
 
+CORS_ALLOW_CREDENTIALS = True
 
 #Modele
 

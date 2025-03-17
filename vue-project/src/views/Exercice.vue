@@ -48,8 +48,8 @@
           </div>
           <!-- Bouton d'envoi -->
           <button type="submit" class="mt-4 border bg-gray-500 text-white py-2 px-4 rounded-xl hover:bg-red-400 hover:font-bold" :disabled="isLoading">
-            <span v-if="isLoading">Chargement...</span>
-            <span v-else>Déposer</span>
+            
+            <span >Déposer</span>
           </button>
         </form>
       </div>
@@ -63,13 +63,14 @@
     name: 'Exercices',
     data() {
       return {
+        isLoading:false,
         selectedFile: null,
         user: {
           id: 1,  // Remplacez par l'ID de l'utilisateur connecté
           role: 'professeur',  // Remplacez par le rôle de l'utilisateur connecté
         },
         classes: [],  // Liste des classes récupérées depuis l'API
-        //exercices: [],  // Liste des exercices récupérés depuis l'API
+        exercices: [],  // Liste des exercices récupérés depuis l'API
         nouvelExercice: {
           titre: '',
           description: '',
@@ -98,31 +99,42 @@
       },
 
       onFileChange(event) {
-        this.nouvelExercice.fichier = event.target.files[0];
+        const file = event.target.files[0];
+        if(file){
+          this.selectedFile = file;
+          this.nouvelExercice.fichier = file;
+        }
       },
       //Function 
       async deposerExercice() {
+        this.isLoading = true;
         const formData = new FormData();
         formData.append('titre', this.nouvelExercice.titre);
         formData.append('description', this.nouvelExercice.description);
         formData.append('classes', JSON.stringify(this.nouvelExercice.classes));
-        formData.append('dateLimite', this.selectedDate);
+        formData.append('date_a_soumettre', this.selectedDate);
         if (this.nouvelExercice.fichier) {
           formData.append('fichier', this.nouvelExercice.fichier);
         }
   
         try {
+          const token = localStorage.getItem('token');
           const response = await axios.post('http://127.0.0.1:8000/exercices/upload/', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
+              'Authorization': `Token ${token}`
             },
+            withCredentials: true
           });
           this.exercices.push(response.data);  // Ajouter le nouvel exercice à la liste
           this.nouvelExercice = { titre: '', description: '', classes: [], fichier: null };  // Réinitialiser le formulaire
           alert('Exercice déposé avec succès !');
+          this.$emit('exercice-added', response.data);
         } catch (error) {
           console.error('Erreur lors du dépôt de l\'exercice:', error.response?.data || error.message);
           alert('Erreur lors du dépôt de l\'exercice.');
+        }finally{
+          this.isLoading = false;
         }
       },
     },
