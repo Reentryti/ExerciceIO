@@ -170,7 +170,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'client_id': config('GOOGLE_CLIENT_ID'),
             'secret': config('GOOGLE_SECRET'),
         },
-        'SCOPE': ['profile', 'email'],
+        'SCOPE': ['email', 'first_name', 'last_name'],
         'AUTH_PARAMS': {'access_type': 'online'},
         'METHOD': 'oauth2',
         'VERIFIED_EMAIL': True,

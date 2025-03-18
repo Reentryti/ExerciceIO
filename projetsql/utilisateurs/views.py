@@ -130,7 +130,54 @@ class ProfesseurClassesView(APIView):
         if not request.user.is_staff:
             return Response({"error": "Accès refusé. Seuls les professeurs peuvent accéder à cette ressource."}, status=status.HTTP_403_FORBIDDEN)
 
-        # Récupérer les classes enseignées par le professeur connecté
+        # Récupérer les classes affectées au professeur connecté
         classes = request.user.classes.all()
         serializer = ClasseSerializer(classes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+# Oauth2 Authentification
+class GoogleLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get('token')
+        try :
+            idinfo = id_token.verify_oauth2_token(
+                token, 
+                google_requests.Request(),
+                settings.GOOGLE_CLIENT_ID   
+            )
+
+            email = idinfo.get('email')
+            prenom = idinfo.get('given_name')
+            nom = idinfo.get('family_name')
+
+            try:
+                user = Utilisateur.objects.get(email=email)
+            except Utilisateur.DoesNotExist:
+                user = Utilisateur.objects.create(
+                    email  = email,
+                    prenom =   prenom,
+                    nom = nom,
+                )
+
+                default_classes = request.data.get("classes", [])
+                if default_classes:
+                    classes = Classe.objects.filter(id_in= default_classes)
+                    if classes.exists():
+                        user.classes.set(classes)
+                user.save()
+
+            login(request, user, backend='')
+            token, created = Token.objects.get_or_create(user=user)
+
+            return Response({
+                "message" : "Connexion avec Google réussie",
+                "token": token.key,
+                "role": user.role,
+                "nom": nom,
+                "prenom": prenom
+            }, status=status.HTTP_200_OK)
+        
+        except ValueError:
+            return Response({"error":"Token invalide"}, status=status.HTTP_401_UNAUTHORIZED)
