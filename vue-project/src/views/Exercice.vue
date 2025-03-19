@@ -88,7 +88,7 @@
     methods: {
       async chargerClasses() {
         try {
-          const response = await axios.get('http://127.0.0.1:8000/api/classes/');
+          const response = await axios.get('http://127.0.0.1:8000/api/professeur/classes');
           this.classes = response.data;
         } catch (error) {
           console.error('Erreur lors du chargement des classes:', error);

@@ -39,29 +39,25 @@
               <p class="text-gray-500 mt-2 text-sm ">
                 Vous n'avez aucun exercice à remettre
               </p>
-              <div class="border w-full">
-                <ul role="list" class="divide-y divide-gray-100">
-                  <li v-for="person in people" :key="person.email" class="flex justify-between gap-x-6 py-5">
-                    <div class="flex min-w-0 gap-x-4">
-                      <div class="min-w-0 flex-auto">
-                        <p class="text-sm/6 font-semibold text-gray-900">{{ person.name }}</p>
-                        <p class="mt-1 truncate text-xs/5 text-gray-500">{{ person.email }}</p>
-                      </div>
-                    </div>
-                    <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                      <p class="text-sm/6 text-gray-900">{{ person.role }}</p>
-                      <p v-if="person.lastSeen" class="mt-1 text-xs/5 text-gray-500">
-                        Last seen <time :datetime="person.lastSeenDateTime">{{ person.lastSeen }}</time>
-                      </p>
-                      <div v-else class="mt-1 flex items-center gap-x-1.5">
-                        <div class="flex-none rounded-full bg-emerald-500/20 p-1">
-                          <div class="size-1.5 rounded-full bg-emerald-500" />
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
+              <div v-if="latestExercice" class="mt-4">
+                <div class="flex justify-between items-center mb-2">
+                  <h4 class="text-sm font-semibold text-gray-900">
+                    {{ latestExercice.titre }}
+                  </h4>
+                  <span class="px-2 py-1 text-xs font-medium rounded-full" :class="isExerciceExpired(latestExercice.date_a_soumettre)? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">
+                    {{ isExerciceExpired(latestExercice.date_a_soumettre)? 'Expired' : 'A rendre' }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-600 mb-1">{{ formatDate(latestExercice.date_a_soumettre) }}</p>
+                <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{ latestExercice.description }}</p>
+                <router-view :to="'/exercice/' + latestExercice.id" class="text-sm text-indigo-500 ">
+                  Voir les détails
+                </router-view>
               </div>
+              <p v-else class="text-gray-500 mt-2 text-sm">
+                Vous n'avez pas d'exercice à remettre
+              </p>
+
             </div>
           </div>
           
@@ -140,6 +136,7 @@ export default {
     return {
       user:null, 
       currentDate:"",
+      latestExercice:null
     };
   },
 
@@ -165,9 +162,45 @@ export default {
         console.error("Erreur lors de la récupération de l'utilisateur :", error);
       }
     },
+    async fetchLatestExercice(){
+      try{
+        const token = localStorage.getItem("token");
+        if(!token){
+          throw new Error("Aucun token trouvé")
+        }
+        const response = await axios.get("http://localhost:8000/exercices/recent/", 
+          {
+            headers:{
+              "Authorization" : `Token ${token}`,
+              "Content-Type": "application/json"
+            }
+          });
+          this.latestExercice = response.data;
+
+      }catch(error){
+        console.error("Erreur lors de la récupération de l'exercice:", error);
+      }
+
+    },
+
+    formatDate(dateString){
+      const date = new Date(dateString);
+      return date.toLocaleDateString('fr-FR',{
+        day:'numeric',
+        month:'long',
+        year:'numeric'
+      });
+    },
+
+    isExerciceExpired(dateString){
+      const submissionDate = new Date(dateString);
+      const today = new Date();
+      return submissionDate< today;
+    }
   },
   mounted() {
     this.fetchUser(); // Récupère l'utilisateur au chargement
+    this.fetchLatestExercice();
   },
 };
 </script>

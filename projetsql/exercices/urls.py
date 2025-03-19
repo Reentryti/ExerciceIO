@@ -8,5 +8,5 @@ urlpatterns = [
     path('<int:exercice_id>/soumettre/', SoumettreSolutionView.as_view(), name='soumettre_solution'),
     path('<int:exercice_id>/solutions/', ListeSolutionsView.as_view(), name='liste_solutions'),
     path('api/professeur/exercices/', ProfesseurExercicesView.as_view(), name='professeur_exercices'),
-    path('exercices/recent/', RecentExerciceView.as_view(), name='exercice_recent'),
+    path('recent/', RecentExerciceView.as_view(), name='exercice_recent'),
 ]
