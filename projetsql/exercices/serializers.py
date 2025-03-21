@@ -3,11 +3,11 @@ from .models import Exercice, Solution
 from utilisateurs.models import Classe
 
 class ExerciceSerializer(serializers.ModelSerializer):
-    classe_affected = serializers.PrimaryKeyRelatedField(queryset=Classe.objects.all(), many=True) 
+    classes_affected = serializers.PrimaryKeyRelatedField(queryset=Classe.objects.all(), many=True) 
 
     class Meta:
         model = Exercice
-        fields = ['id', 'titre', 'description', 'classe_affected', 'fichier', 'createur', 'date_creation', 'date_a_soumettre']
+        fields = ['id', 'titre', 'description', 'classes_affected', 'fichier', 'createur', 'date_creation', 'date_a_soumettre']
         #Champs statiques
         read_only_fields = ['createur', 'date_creation']
 

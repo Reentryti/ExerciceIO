@@ -26,7 +26,7 @@ class ListeExercicesView(APIView):
     def get(self, request, *args, **kwargs):
         etudiant = request.user
         classes_etudiant = [etudiant.classe] if etudiant.classe else []
-        exercices = Exercice.objects.filter(classe_affected=classes_etudiant).distinct()
+        exercices = Exercice.objects.filter(classes_affected=classes_etudiant).distinct()
         serializer = ExerciceSerializer(exercices, many=True)
         return Response(serializer.data)
 
@@ -78,7 +78,7 @@ class RecentExerciceView(APIView):
 
         try:
             exercice_recent = Exercice.objects.filter(
-                classe_affected__in = classes_etudiant
+                classes_affected__in = classes_etudiant
             ).distinct().order_by('date_creation').first()
 
             if exercice_recent:

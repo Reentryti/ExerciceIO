@@ -12,7 +12,7 @@ class Exercice(models.Model):
     date_creation = models.DateTimeField(auto_now_add=True)
     date_a_soumettre = models.DateTimeField(default=timezone.now)
     createur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='exercices_crees')
-    classe_affected = models.ManyToManyField(Classe, related_name='exercices', blank=True)
+    classes_affected = models.ManyToManyField(Classe, related_name='exercices', blank=True)
     fichier = models.FileField(upload_to='exercices/', blank=True, null=True)
 
 #Modele des solutions

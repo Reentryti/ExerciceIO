@@ -1,12 +1,5 @@
 <template>
-  <!--
-    This example requires updating your template:
 
-    ```
-    <html class="h-full bg-white">
-    <body class="h-full">
-    ```
-  -->
   <div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
       <img class="mx-auto h-15 w-auto" src="../../public/logo.png" alt="Your Company" />

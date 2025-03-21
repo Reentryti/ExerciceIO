@@ -23,7 +23,7 @@ class RegisterView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             # Récupération des classes à partir des IDs fournis
-            classes_ids = request.data.get("classes", [])
+            classes_ids = request.data.get("classes_affected", [])
             classes = Classe.objects.filter(id__in=classes_ids)
 
             if not classes.exists():
@@ -31,7 +31,7 @@ class RegisterView(APIView):
 
             # Création de l'utilisateur
             user = serializer.save()
-            user.classes.set(classes)  # Associer les classes au professeur
+            user.classes_affected.set(classes)  # Associer les classes au professeur
             user.save()
 
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
@@ -131,8 +131,8 @@ class ProfesseurClassesView(APIView):
             return Response({"error": "Accès refusé. Seuls les professeurs peuvent accéder à cette ressource."}, status=status.HTTP_403_FORBIDDEN)
 
         # Récupérer les classes affectées au professeur connecté
-        classes = request.user.classes.all()
-        serializer = ClasseSerializer(classes, many=True)
+        classes_affected = request.user.classes_affected.all()
+        serializer = ClasseSerializer(classes_affected, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # Oauth2 Authentification
@@ -163,7 +163,7 @@ class GoogleLoginView(APIView):
 
                 default_classes = request.data.get("classes", [])
                 if default_classes:
-                    classes = Classe.objects.filter(id_in= default_classes)
+                    classes = Classe.objects.filter(id__in= default_classes)
                     if classes.exists():
                         user.classes.set(classes)
                 user.save()
