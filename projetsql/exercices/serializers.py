@@ -3,23 +3,33 @@ from .models import Exercice, Solution
 from utilisateurs.models import Classe
 
 class ExerciceSerializer(serializers.ModelSerializer):
-    classes_affected = serializers.PrimaryKeyRelatedField(queryset=Classe.objects.all(), many=True) 
+    classes_affected = serializers.PrimaryKeyRelatedField(queryset=Classe.objects.all(), many=True, required=True)
 
     class Meta:
         model = Exercice
         fields = ['id', 'titre', 'description', 'classes_affected', 'fichier', 'createur', 'date_creation', 'date_a_soumettre']
-        #Champs statiques
         read_only_fields = ['createur', 'date_creation']
 
     def create(self, validated_data):
+        #Extraction des classes associées
+        classes_affected = validated_data.pop('classes_affected', [])
+
+        #Association utilisateur connecté comme créateur de l'exercice
         validated_data['createur'] = self.context['request'].user
-        return super().create(validated_data)
+
+        #Création de l'exercice
+        exercice = Exercice.objects.create(**validated_data)
+
+        #Association des classes à l'exercice
+        exercice.classes_affected.set(classes_affected)
+
+        return exercice
 
 class SolutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Solution
         fields = ['id', 'exercice', 'etudiant', 'fichier', 'commentaire', 'date_soumission']
-        read_only_fields = ['etudiant', 'date_soumission']
+        read_only_fields = ['etudiant', 'date_soumission', 'exercice']
 
     def create(self, validated_data):
         validated_data['etudiant'] = self.context['request'].user

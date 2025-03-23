@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 #Modele de la classe
 class Classe(models.Model):
     nom = models.CharField(max_length=25, unique=True)
+  
     def __str__(self):
         return self.nom
 
@@ -26,8 +27,6 @@ class UtilisateurManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('role', 'professeur')
-        #extra_fields.setdefault('classe', None)
-        #extra_fields.setdefault('classes', None)
         return self.create_user(email, prenom, nom, password, **extra_fields)
 
 #Modele personnalisé d'utilisateur
@@ -41,7 +40,7 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='etudiant')
     classes_affected = models.ManyToManyField(Classe, related_name='professeurs', blank=True)
-    classe = models.ForeignKey(Classe, on_delete=models.SET_NULL, null=True, blank=True)  
+    classe = models.ForeignKey(Classe, on_delete=models.SET_NULL, null=True)  
     actif = models.BooleanField(default=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)

@@ -3,7 +3,7 @@ from .models import Utilisateur, Classe
 
 class UserSerializer(serializers.ModelSerializer):
     classes_affected = serializers.PrimaryKeyRelatedField(queryset=Classe.objects.all(), many=True, required=False)
-    role = serializers.CharField(max_length=20) 
+    role = serializers.CharField(max_length=20, read_only=True) 
 
     class Meta:
         model = Utilisateur

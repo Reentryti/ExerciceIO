@@ -24,10 +24,10 @@
             </div>
             <!-- Classe affectée -->
             <div class="w-full">
-              <label for="classes" class="block mb-3">Classes </label>
-              <select v-model="nouvelExercice.classes" id="classes" required class="border w-full bg-gray-100 text-black p-3 rounded">
+              <label for="classes_affected" class="block mb-3">Classes affectées</label>
+              <select v-model="nouvelExercice.classes_affected" id="classes_affected" required class="border w-full bg-gray-100 text-black p-3 rounded" multiple>
                 <option value="">---Veuillez choisir une classe-----</option>
-                <option v-for="classe in classes" :key="classe.id" :value="classe.id">
+                <option v-for="classe in classes" :key="classe.id" :value="Number(classe.id)">
                   {{ classe.nom }}
                 </option>
               </select>
@@ -36,7 +36,7 @@
           <!-- Upload -->
           <div class="border mt-8">
             <input type="file" @change="onFileChange" class="hidden" ref="fileUpload" accept=".txt, .pdf"/>
-            <button @click="openFile" class="bg-red-400 text-white rounded-lg px-4 py-2 transition duration-300">
+            <button type="button" @click="openFile" class="bg-red-400 text-white rounded-lg px-4 py-2 transition duration-300">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
               </svg>
@@ -52,6 +52,9 @@
             <span >Déposer</span>
           </button>
         </form>
+        <div v-if="error" class="text-red-500 mt-4">
+          {{ error }}
+        </div>
       </div>
     </div>
   </template>
@@ -63,7 +66,7 @@
     name: 'Exercices',
     data() {
       return {
-        isLoading:false,
+        isLoading: false,
         selectedFile: null,
         user: {
           id: 1,  // Remplacez par l'ID de l'utilisateur connecté
@@ -74,13 +77,15 @@
         nouvelExercice: {
           titre: '',
           description: '',
-          classes: [],
+          classes_affected: [],
           fichier: null,
-          dateLimite:'',
+          dateLimite: '',
         },
-        selectedDate:'',
+        selectedDate: '',
+        error: null,  // Ajout d'un message d'erreur
       };
     },
+
     created() {
       this.chargerClasses();
       //this.chargerExercices();
@@ -115,32 +120,38 @@
       //Function 
       async deposerExercice() {
         this.isLoading = true;
+        this.error = null;  // Réinitialiser l'erreur
+
         const formData = new FormData();
         formData.append('titre', this.nouvelExercice.titre);
         formData.append('description', this.nouvelExercice.description);
-        formData.append('classes', JSON.stringify(this.nouvelExercice.classes));
+        // For multiple values, append each value separately
+        this.nouvelExercice.classes_affected.forEach(classId => {
+          formData.append('classes_affected', classId);
+        }); // Correction du nom du champ
         formData.append('date_a_soumettre', this.selectedDate);
         if (this.nouvelExercice.fichier) {
           formData.append('fichier', this.nouvelExercice.fichier);
         }
-  
+
         try {
           const token = localStorage.getItem('token');
           const response = await axios.post('http://127.0.0.1:8000/exercices/upload/', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
-              'Authorization': `Token ${token}`
+              'Authorization': `Token ${token}`,
             },
-            withCredentials: true
+            withCredentials: true,
           });
           this.exercices.push(response.data);  // Ajouter le nouvel exercice à la liste
-          this.nouvelExercice = { titre: '', description: '', classes: [], fichier: null };  // Réinitialiser le formulaire
+          this.nouvelExercice = { titre: '', description: '', classes_affected: [], fichier: null };  // Réinitialiser le formulaire
+          this.selectedFile = null;  // Réinitialiser le fichier sélectionné
           alert('Exercice déposé avec succès !');
           this.$emit('exercice-added', response.data);
         } catch (error) {
           console.error('Erreur lors du dépôt de l\'exercice:', error.response?.data || error.message);
-          alert('Erreur lors du dépôt de l\'exercice.');
-        }finally{
+          this.error = error.response?.data?.message || 'Erreur lors du dépôt de l\'exercice. Veuillez réessayer.';
+        } finally {
           this.isLoading = false;
         }
       },

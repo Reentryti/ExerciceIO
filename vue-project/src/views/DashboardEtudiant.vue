@@ -36,7 +36,7 @@
               <h3 class="text-gray-900 mt-5 text-base font-bold tracking-tight">
                 Exercices à rendre
               </h3>
-              <p class="text-gray-500 mt-2 text-sm ">
+              <p v-if="!latestExercice" class="text-gray-500 mt-2 text-sm ">
                 Vous n'avez aucun exercice à remettre
               </p>
               <div v-if="latestExercice" class="mt-4">
@@ -50,13 +50,11 @@
                 </div>
                 <p class="text-xs text-gray-600 mb-1">{{ formatDate(latestExercice.date_a_soumettre) }}</p>
                 <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{ latestExercice.description }}</p>
-                <router-view :to="'/exercice/' + latestExercice.id" class="text-sm text-indigo-500 ">
+                <router-link :to="'/exercice/' + latestExercice.id" class="text-sm text-indigo-500 ">
                   Voir les détails
-                </router-view>
+                </router-link>
               </div>
-              <p v-else class="text-gray-500 mt-2 text-sm">
-                Vous n'avez pas d'exercice à remettre
-              </p>
+             
 
             </div>
           </div>
@@ -168,6 +166,7 @@ export default {
         if(!token){
           throw new Error("Aucun token trouvé")
         }
+        console.log("Making API request...");
         const response = await axios.get("http://localhost:8000/exercices/recent/", 
           {
             headers:{
@@ -175,12 +174,20 @@ export default {
               "Content-Type": "application/json"
             }
           });
+        console.log("API response status:", response.status);
+        console.log("API response data:", response.data);
+        console.log("API response type:", typeof response.data);
+        
+        if (response.data) {
           this.latestExercice = response.data;
-
+          console.log("latestExercice set to:", this.latestExercice);
+        } else {
+          console.log("No data received from API");
+        }
       }catch(error){
         console.error("Erreur lors de la récupération de l'exercice:", error);
+        console.error("Error details:", error.response ? error.response.data : "No response data");
       }
-
     },
 
     formatDate(dateString){

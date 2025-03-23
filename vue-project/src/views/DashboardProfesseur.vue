@@ -28,7 +28,7 @@
               <div v-if="popupOpen" class="">
                 <div class="">
                   <button class="" @click="popupClose">×</button>
-                  <Exercice @exercise-added="handleExerciseAdded" />
+                  <Exercice @exercice-added="handleExerciseAdded" />
                 </div>
               </div>
             </div>

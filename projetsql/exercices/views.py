@@ -13,8 +13,12 @@ from rest_framework.permissions import IsAuthenticated
 
 class UploadExerciceView(APIView):
     parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response({"error":"Acces refusé"}, status=status.HTTP_403_FORBIDDEN)
+            
         serializer = ExerciceSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -25,8 +29,12 @@ class UploadExerciceView(APIView):
 class ListeExercicesView(APIView):
     def get(self, request, *args, **kwargs):
         etudiant = request.user
-        classes_etudiant = [etudiant.classe] if etudiant.classe else []
-        exercices = Exercice.objects.filter(classes_affected=classes_etudiant).distinct()
+        if not etudiant or not hasattr(etudiant, 'classe') or not etudiant.classe:
+            return Response({"error":"Etudiant sans classe"}, status=status.HTTP_400_BAD_REQUEST)
+
+        #classe_etudiant = [etudiant.classe] if etudiant.classe else []
+        classe_etudiant = etudiant.classe
+        exercices = Exercice.objects.filter(classes_affected=classe_etudiant).distinct()
         serializer = ExerciceSerializer(exercices, many=True)
         return Response(serializer.data)
 
@@ -43,6 +51,7 @@ class SoumettreSolutionView(APIView):
         if timezone.now() > exercice.date_a_soumettre:
             return Response({"error":"La date de soumission est dépassée"}, status=status.HTTP_400_BAD_REQUEST)
             
+        #Sauvegarde de la solution
         serializer = SolutionSerializer(data=request.data, context={'request': request, 'exercice': exercice})
         if serializer.is_valid():
             serializer.save()
@@ -67,28 +76,34 @@ class RecentExerciceView(APIView):
 
     def get(self, request, *args, **kwargs):
         etudiant = request.user
+        
+        # Ajoutez des logs pour le débogage
+        print(f"Utilisateur: {etudiant.email}, ID: {etudiant.id}")
+        print(f"Classe de l'utilisateur: {etudiant.classe if hasattr(etudiant, 'classe') else 'Aucune'}")
 
-        if not etudiant or not hasattr(etudiant, 'classe'):
+        if not etudiant or not hasattr(etudiant, 'classe') or not etudiant.classe:
             return Response({"error":"Utilisateur non connecté ou sans classe"}, status=status.HTTP_400_BAD_REQUEST)
 
-        classes_etudiant = [etudiant.classe] if etudiant.classe else []
-
-        if not classes_etudiant:
-            return Response(None, status=status.HTTP_204_NO_CONTENT)
-
+        classe_id = etudiant.classe.id
+        
         try:
-            exercice_recent = Exercice.objects.filter(
-                classes_affected__in = classes_etudiant
-            ).distinct().order_by('date_creation').first()
+            # Recherche des exercices pour la classe de l'étudiant
+            exercices = Exercice.objects.filter(classes_affected__id=classe_id).distinct()
+            print(f"Nombre d'exercices trouvés: {exercices.count()}")
+            
+            # Obtenir l'exercice le plus récent (notez le - devant date_creation)
+            exercice_recent = exercices.order_by('-date_creation').first()
 
             if exercice_recent:
-                serialiser= ExerciceSerializer(exercice_recent)
-                return Response(serialiser.data)
+                print(f"Exercice récent trouvé: {exercice_recent.id} - {exercice_recent.titre}")
+                serializer = ExerciceSerializer(exercice_recent)
+                return Response(serializer.data)
             else:
+                print("Aucun exercice récent trouvé")
                 return Response(None, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            return Response({"error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            print(f"Erreur: {str(e)}")
+            return Response({"error":str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ProfesseurExercicesView(APIView):
     permission_classes = [IsAuthenticated]
