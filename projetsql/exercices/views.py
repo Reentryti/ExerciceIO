@@ -117,3 +117,12 @@ class ProfesseurExercicesView(APIView):
         exercices = Exercice.objects.filter(createur=request.user)
         serializer = ExerciceSerializer(exercices, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class DetailExerciceView(APIView):
+    def get(self, request, exercice_id):
+        try:
+            exercice = Exercice.objects.get(id=exercice_id)
+            serializer = ExerciceSerializer(exercice)
+            return Response(serializer.data)
+        except Exercice.DoesNotExist:
+            return Response({"error": "Exercice non trouvé."}, status=status.HTTP_404_NOT_FOUND)
