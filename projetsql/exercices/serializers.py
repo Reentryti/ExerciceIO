@@ -37,7 +37,7 @@ class SolutionSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class NoteSerializer(serializer.ModelSerializer):
+class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model= Note
         fields =['id', 'valeur', 'solution']
