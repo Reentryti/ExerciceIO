@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'utilisateurs',
     'exercices',
+    'corrections',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
