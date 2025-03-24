@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Exercice, Solution
+from .models import Exercice, Solution, Note
 from utilisateurs.models import Classe
 
 class ExerciceSerializer(serializers.ModelSerializer):
@@ -28,10 +28,16 @@ class ExerciceSerializer(serializers.ModelSerializer):
 class SolutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Solution
-        fields = ['id', 'exercice', 'etudiant', 'fichier', 'commentaire', 'date_soumission']
+        fields = ['id', 'exercice', 'etudiant', 'fichier', 'commentaire', 'date_soumission', 'note']
         read_only_fields = ['etudiant', 'date_soumission', 'exercice']
 
     def create(self, validated_data):
         validated_data['etudiant'] = self.context['request'].user
         validated_data['exercice'] = self.context['exercice']
         return super().create(validated_data)
+
+
+class NoteSerializer(serializer.ModelSerializer):
+    class Meta:
+        model= Note
+        fields =['id', 'valeur', 'solution']

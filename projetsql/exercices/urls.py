@@ -10,4 +10,5 @@ urlpatterns = [
     path('api/professeur/exercices/', ProfesseurExercicesView.as_view(), name='professeur_exercices'),
     path('recent/', RecentExerciceView.as_view(), name='exercice_recent'),
     path('<int:exercice_id>/', DetailExerciceView.as_view(), name='detail_exercice'),  
+    path(''),
 ]

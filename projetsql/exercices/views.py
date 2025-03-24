@@ -1,11 +1,11 @@
 from django.shortcuts import render
-from .models import Exercice, Solution
+from .models import Exercice, Solution, Note
 from django import forms
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import ExerciceSerializer, SolutionSerializer
+from .serializers import ExerciceSerializer, SolutionSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -126,3 +126,19 @@ class DetailExerciceView(APIView):
             return Response(serializer.data)
         except Exercice.DoesNotExist:
             return Response({"error": "Exercice non trouvé."}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+#Vue attibution de note
+class AttribNoteView(APIView):
+    def post(self, request, solution_id):
+        try:
+            solution = Solution.objects.get(id=solution_id)
+        except Solution.DoesNotExist:
+            return Response({"error": "Solution non existante"}, status=status.HTTP_404_NOT_FOUND)
+
+        serialiser = NoteSerializer(data=request.data)
+        if serialiser.is_valid():
+            serialiser.save(solution=solution)
+            return Response(serialiser.data, status=status.HTTP_201_CREATED)
+        return Response(serialiser.data, status=status.HTTP_400_BAD_REQUEST)

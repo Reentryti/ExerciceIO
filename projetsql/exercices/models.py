@@ -29,6 +29,16 @@ class Solution(models.Model):
     etudiant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solutions_soumises')
     fichier = models.FileField(upload_to='solutions/')
     date_soumission = models.DateTimeField(auto_now_add=True)
+    note = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"Solution de {self.etudiant} pour {self.exercice}"
+
+
+#Modele note
+class Note(models.Model):
+    solution = models.OneToOneField(Solution, on_delete=models.CASCADE, related_name='note_attrib')
+    valeur = models.DecimalField(max_digits=4, decimal_places=2)
+
+    def __str__(self):
+        return f"Note {self.valeur} pour {self.solution}"
