@@ -63,12 +63,7 @@
             <input type="file" id="fichier" @change="onFileChange" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
           </div>
   
-          <!-- Commentaire (optionnel) -->
-          <div class="mb-4">
-            <label for="commentaire" class="block text-sm font-medium text-gray-700">Commentaire (optionnel)</label>
-            <textarea id="commentaire" v-model="solution.commentaire" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" rows="3"></textarea>
-          </div>
-  
+      
           <!-- Bouton de soumission -->
           <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
             Déposer la solution
@@ -168,12 +163,12 @@ export default {
 
       const formData = new FormData();
       formData.append('fichier', this.solution.fichier);
-      formData.append('commentaire', this.solution.commentaire);
-      formData.append('exercice', this.exercice.id);
+      //formData.append('commentaire', this.solution.commentaire);
+      //formData.append('exercice', this.exercice.id);
 
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.post('http://localhost:8000/solutions/', formData, {
+        const response = await axios.post(`http://localhost:8000/exercices/${this.exercice.id}/soumettre/`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             'Authorization': `Token ${token}`,

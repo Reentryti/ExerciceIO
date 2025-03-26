@@ -28,7 +28,7 @@ class ExerciceSerializer(serializers.ModelSerializer):
 class SolutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Solution
-        fields = ['id', 'exercice', 'etudiant', 'fichier', 'commentaire', 'date_soumission', 'note']
+        fields = ['id', 'exercice', 'etudiant', 'fichier', 'date_soumission', 'note']
         read_only_fields = ['etudiant', 'date_soumission', 'exercice']
 
     def create(self, validated_data):

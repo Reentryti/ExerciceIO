@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import ExerciceSerializer, SolutionSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated
-
+from django.utils import timezone
 
 # Create your views here.
 
