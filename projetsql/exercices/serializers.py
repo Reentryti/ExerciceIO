@@ -4,7 +4,7 @@ from utilisateurs.models import Classe
 
 class ExerciceSerializer(serializers.ModelSerializer):
     classes_affected = serializers.PrimaryKeyRelatedField(queryset=Classe.objects.all(), many=True, required=True)
-
+    fichier = serializers.FileField(required=True)
     class Meta:
         model = Exercice
         fields = ['id', 'titre', 'description', 'classes_affected', 'fichier', 'createur', 'date_creation', 'date_a_soumettre']

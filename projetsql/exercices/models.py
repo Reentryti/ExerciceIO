@@ -31,6 +31,19 @@ class Solution(models.Model):
     date_soumission = models.DateTimeField(auto_now_add=True)
     note = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
 
+    @property
+    def correction(self):
+        """Accès facile à la correction depuis une solution"""
+        if hasattr(self, '_correction'):
+            return self._correction
+        self._correction = getattr(self, 'correction', None)
+        return self._correction
+
+    def trigger_correction(self, provider="DEEPSEEK"):
+        """Méthode pour lancer une correction"""
+        from corrections.services.correction import CorrectionEngine
+        return CorrectionEngine.create_correction(self, provider)
+
     def __str__(self):
         return f"Solution de {self.etudiant} pour {self.exercice}"
 

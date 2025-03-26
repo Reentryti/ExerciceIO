@@ -14,6 +14,8 @@ class Correction(models.Model):
     feedback = models.TextField()      # Feedback formaté
     score = models.FloatField(null=True, blank=True)
     #corrected_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='corrections')
+    
+
 
     class Meta:
         ordering = ['-created_at']

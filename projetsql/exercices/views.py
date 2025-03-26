@@ -142,3 +142,6 @@ class AttribNoteView(APIView):
             serialiser.save(solution=solution)
             return Response(serialiser.data, status=status.HTTP_201_CREATED)
         return Response(serialiser.data, status=status.HTTP_400_BAD_REQUEST)
+
+
+

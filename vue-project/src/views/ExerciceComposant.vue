@@ -7,13 +7,52 @@
         <p class="text-sm text-gray-500">
           Date limite : {{ formatDate(exercice.date_a_soumettre) }}
         </p>
+
+
+         <!-- Section du fichier de l'exercice avec prévisualisation -->
         <div v-if="exercice.fichier" class="mt-4">
-          <a :href="exercice.fichier" target="_blank" class="text-blue-500 hover:underline">
-            Télécharger le fichier de l'exercice
-          </a>
+          <div class="flex items-center space-x-4 mb-4">
+            <!-- Telechargement de l'exercice -->
+            <button @click="telechargerFichier(exercice.fichier)" class="flex items-center text-blue-500 hover:underline">
+              <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Télécharger le fichier de l'exercice
+            </button>
+          </div>
+
+          <!-- Prévisualisation du fichier -->
+          <div class="border rounded-lg p-4 bg-gray-50">
+            <h3 class="font-medium mb-2">Prévisualisation :</h3>
+              
+            <!-- Pour les PDF -->
+            <div v-if="isPdfExercice" class="pdf-preview-container">        
+              <embed :src="exercice.fichier + '#view=FitH'" type="application/pdf" class="w-full h-96 border"/>
+              <p class="text-xs text-gray-500 mt-2">
+                Si le PDF ne s'affiche pas
+                <a :href="exercice.fichier" target="_blank">
+                  Ouvrir dans un autre onglet
+                </a>
+              </p>
+            </div>
+ 
+            <!-- Pour les fichiers texte -->
+            <div v-else-if="isTextExercice" class="bg-white p-4 rounded border">
+              <pre class="whitespace-pre-wrap font-mono text-sm">{{ exerciceFileContent }}</pre>
+            </div>
+            
+            <!-- Pour les autres types de fichiers -->
+            <div v-else class="text-center py-8 text-gray-500">
+              <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <p>Aucune prévisualisation disponible pour ce type de fichier</p>
+            </div>
+          </div>
         </div>
       </div>
   
+      
       <!-- Formulaire de dépôt de solution -->
       <div class="bg-white rounded-lg shadow-md p-6">
         <h2 class="text-xl font-bold mb-4">Déposer votre solution</h2>
@@ -51,12 +90,24 @@ export default {
         commentaire: '',  // Commentaire optionnel
       },
       error: null,  // Message d'erreur
+      exerciceFileContent:'',
     };
   },
+  computed:{
+    isPdfExercice(){
+      return this.exercice.fichier && this.exercice.fichier.toLowerCase().endsWith('.pdf');
+    },
+    isTextExercice(){
+      return this.exercice.fichier && this.exercice.fichier.toLowerCase().endsWith('.txt');
+    },
+  },
+
   created() {
     this.chargerExercice();  // Charger les détails de l'exercice au montage du composant
-  },
+  },  
+  
   methods: {
+
     // Charger les détails de l'exercice
     async chargerExercice() {
       const exerciceId = this.$route.params.id;  // Récupérer l'ID de l'exercice depuis l'URL
@@ -68,15 +119,44 @@ export default {
           },
         });
         this.exercice = response.data;
+        
+        if (this.isTextExercice){
+          await this.loadTextFileContent(this.exercice.fichier);
+        }
+
       } catch (error) {
         console.error('Erreur lors du chargement de l\'exercice:', error);
         this.error = 'Impossible de charger l\'exercice. Veuillez réessayer.';
       }
     },
 
+    // Fonction de chargement fichier txt
+    async loadTextFileContent(url){
+      try{
+        const response = await axios.get(url, { responseType:'text'});
+        this.exerciceFileContent = response.data;
+      
+      }catch(error){
+        console.error("Erreur lors du chargement du txt", error);
+        this.exerciceFileContent = "Impossible de charger le fichier";
+      }
+    },
+
+    //Fonction de telechargement des exercices
+   telechargerFichier(url){
+      const link = document.createElement('a');
+      link.href=url;
+      const filename = url.split('/').pop() || 'exercice';
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+   },
+
     // Gérer le changement de fichier
     onFileChange(event) {
       this.solution.fichier = event.target.files[0];
+    
     },
 
     // Déposer la solution

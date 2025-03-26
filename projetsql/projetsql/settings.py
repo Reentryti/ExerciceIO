@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'utilisateurs',
     'exercices',
     'corrections',
+    'storages',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
@@ -185,14 +186,15 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 
 
-
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 #STATICFILES_DIRS = [
 #    os.path.join(BASE_DIR, '../../vue-project/dist/static'),
 #]
 
 #Gestion des uploads
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_URL = '/media/'
+MEDIA_ROOT = ''
+MEDIA_URL = f'https://{config('AWS_STORAGE_BUCKET_NAME')}.s3.{config('AWS_S3_REGION_NAME')}.amazonaws.com/'
 
 #Authentification securisée
 REST_FRAMEWORK = {
@@ -215,3 +217,27 @@ REST_FRAMEWORK = {
 #SESSION_COOKIE_SECURE = True
 #CSRF_COOKIE_SECURE = True
 
+#IA API KEY
+DEEPSEEK_API_KEY = config('DEEPSEEK_API_KEY', default='')
+#OLLAMA_API_URL = config('OLLAMA_API_URL', default='http://localhost:11434')
+
+#OLLAMA CONFIG
+OLLAMA_CONFIG = {
+    'BASE_URL': 'http://localhost:11434',
+    'DEFAULT_MODEL': 'llama3',
+    'TIMEOUT': 60
+}
+
+# Configuration AWS S3
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')  # Récupérée dans IAM
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')  # Récupérée dans IAM
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')  # Nom de votre bucket
+AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME')  # Région du bucket
+AWS_S3_FILE_OVERWRITE = False  # Évite l'écrasement des fichiers
+AWS_QUERYSTRING_AUTH = True  # Sécurise les URLs de téléchargement
+
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
