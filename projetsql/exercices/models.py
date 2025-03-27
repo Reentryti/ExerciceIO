@@ -3,7 +3,7 @@ from django.conf import settings
 from utilisateurs.models import Classe
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-
+from storages.backends.s3boto3 import S3Boto3Storage
 # Create your models here.
 
 #Modele des exercices
@@ -14,7 +14,7 @@ class Exercice(models.Model):
     date_a_soumettre = models.DateTimeField()
     createur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='exercices_crees')
     classes_affected = models.ManyToManyField(Classe, related_name='exercices', blank=True)
-    fichier = models.FileField(upload_to='exercices/')
+    fichier = models.FileField(upload_to='exercices/', storage=S3Boto3Storage(), verbose_name='Fichier S3')
 
     def __str__(self):
         return self.titre

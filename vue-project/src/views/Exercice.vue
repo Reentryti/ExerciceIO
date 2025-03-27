@@ -117,6 +117,8 @@
           this.nouvelExercice.fichier = file;
         }
       },
+
+      
       //Function 
       async deposerExercice() {
         this.isLoading = true;
@@ -149,8 +151,8 @@
           alert('Exercice déposé avec succès !');
           this.$emit('exercice-added', response.data);
         } catch (error) {
-          console.error('Erreur lors du dépôt de l\'exercice:', error.response?.data || error.message);
-          this.error = error.response?.data?.message || 'Erreur lors du dépôt de l\'exercice. Veuillez réessayer.';
+          console.error('Erreur complete',{message:error.message, response:error.response?.data, config:error.config, stack:error.stack} );
+          this.error = error.response?.data || error.message;
         } finally {
           this.isLoading = false;
         }

@@ -25,9 +25,9 @@
                 Déposer un exercice
               </button>
               <!-- Popup Exercice -->
-              <div v-if="popupOpen" class="">
-                <div class="">
-                  <button class="" @click="popupClose">×</button>
+              <div v-if="popupOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-6 w-full max-w-2xl">
+                  <button class="float-right text-xl" @click="popupClose">&times;</button>
                   <Exercice @exercice-added="handleExerciseAdded" />
                 </div>
               </div>
@@ -131,6 +131,23 @@ export default {
     },
     handleExerciseAdded(){
       this.popupClose();
+    },
+
+    async fetchExercices() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/api/professeur/exercices', {
+          headers: { Authorization: `Token ${token}` }
+        });
+        this.exercices = response.data;
+      } catch (error) {
+        console.error('Erreur:', error);
+      }
+    },
+    handleExerciseAdded(newExercice) {
+      this.exercices.push(newExercice);
+      this.popupClose();
+      this.fetchExercices(); // Rafraîchir la liste
     },
   }
 };

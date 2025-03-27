@@ -193,8 +193,8 @@ STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 #Gestion des uploads
 #MEDIA_URL = '/media/'
-MEDIA_ROOT = ''
-MEDIA_URL = f'https://{config('AWS_STORAGE_BUCKET_NAME')}.s3.{config('AWS_S3_REGION_NAME')}.amazonaws.com/'
+#MEDIA_ROOT = ''
+#MEDIA_URL = f'https://{config('AWS_STORAGE_BUCKET_NAME')}.s3.{config('AWS_S3_REGION_NAME')}.amazonaws.com/'
 
 #Authentification securisée
 REST_FRAMEWORK = {

@@ -12,18 +12,66 @@ from django.utils import timezone
 # Create your views here.
 
 class UploadExerciceView(APIView):
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        # Vérification des permissions
         if not request.user.is_staff:
-            return Response({"error":"Acces refusé"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "Accès réservé aux professeurs"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Vérification manuelle du fichier
+        if 'fichier' not in request.FILES:
+            return Response(
+                {"error": "Aucun fichier fourni"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+
+            data = request.data.copy()
+            if 'classes_affected' in data:
+                if isinstance(data['classes_affected'], str):
+                    data.setlist('classes_affected', [data['classes_affected']])
+
+            serializer = ExerciceSerializer(
+                data=data,
+                context={
+                    'request': request,
+                    'file': request.FILES['fichier']
+                }
+            )
+
+            if serializer.is_valid(raise_exception=True):
+                exercice = serializer.save()
+                
+                #Vérification que le fichier est bien sur S3
+                if not exercice.fichier.url.startswith('https://'):
+                    raise ValidationError("Le fichier n'a pas été uploadé vers S3")
+
+                return Response(
+                    {
+                        "message": "Exercice créé avec succès",
+                        "data": serializer.data,
+                        "s3_url": exercice.fichier.url
+                    },
+                    status=status.HTTP_201_CREATED
+                )
+
+        except ValidationError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
             
-        serializer = ExerciceSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(
+                {"error": f"Erreur serveur: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 #Liste Exercice
 class ListeExercicesView(APIView):

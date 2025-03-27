@@ -5,20 +5,25 @@ from utilisateurs.models import Classe
 class ExerciceSerializer(serializers.ModelSerializer):
     classes_affected = serializers.PrimaryKeyRelatedField(queryset=Classe.objects.all(), many=True, required=True)
     fichier = serializers.FileField(required=True)
+
     class Meta:
         model = Exercice
         fields = ['id', 'titre', 'description', 'classes_affected', 'fichier', 'createur', 'date_creation', 'date_a_soumettre']
         read_only_fields = ['createur', 'date_creation']
 
     def create(self, validated_data):
+        #Extraction du fichier
+        fichier = validated_data.pop('fichier')
+
         #Extraction des classes associées
         classes_affected = validated_data.pop('classes_affected', [])
 
-        #Association utilisateur connecté comme créateur de l'exercice
-        validated_data['createur'] = self.context['request'].user
+        #Creation de l'exercice pre save
+        exercice=Exercice(**validated_data)
+        exercice.createur = self.context['request'].user
 
-        #Création de l'exercice
-        exercice = Exercice.objects.create(**validated_data)
+        #Save for S3
+        exercice.fichier.save(fichier.name, fichier, save=True)
 
         #Association des classes à l'exercice
         exercice.classes_affected.set(classes_affected)
