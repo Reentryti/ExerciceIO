@@ -8,6 +8,7 @@ from rest_framework import status
 from .serializers import ExerciceSerializer, SolutionSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
+from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
 
@@ -154,18 +155,22 @@ class RecentExerciceView(APIView):
             return Response({"error":str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ProfesseurExercicesView(APIView):
+    pagination_class = PageNumberPagination
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         # Vérifier que l'utilisateur est un professeur
         if not request.user.is_staff:
-            return Response({"error": "Accès refusé. Seuls les professeurs peuvent accéder à cette ressource."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "Accès refusé."}, status=status.HTTP_403_FORBIDDEN)
 
         # Récupérer les exercices créés par le professeur connecté
         exercices = Exercice.objects.filter(createur=request.user)
-        serializer = ExerciceSerializer(exercices, many=True)
+        page = self.pagination_class().paginate_exercices(exercices, request)
+        serializer = ExerciceSerializer(page, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+#Vue de détails d'exercices
 class DetailExerciceView(APIView):
     def get(self, request, exercice_id):
         try:

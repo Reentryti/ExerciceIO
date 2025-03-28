@@ -136,7 +136,7 @@ export default {
     async fetchExercices() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/professeur/exercices', {
+        const response = await axios.get('http://localhost:8000/exercices/api/professeur/exercices', {
           headers: { Authorization: `Token ${token}` }
         });
         this.exercices = response.data;
