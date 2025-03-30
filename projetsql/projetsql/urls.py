@@ -26,4 +26,6 @@ urlpatterns = [
     path('exercices/', include('exercices.urls')),
     #URLS partie allauth
     path('accounts/', include('allauth.urls')),
+    #URLS partie corrections
+    path('corrections/', include('corrections.urls')),
 ]

@@ -1,2 +1,6 @@
 .env
 media/exercices/
+taches.py
+ia.py
+prompts.py
+tests.py

@@ -165,10 +165,9 @@ class ProfesseurExercicesView(APIView):
 
         # Récupérer les exercices créés par le professeur connecté
         exercices = Exercice.objects.filter(createur=request.user)
-        page = self.pagination_class().paginate_exercices(exercices, request)
+        page = self.pagination_class().paginate_queryset(exercices, request)
         serializer = ExerciceSerializer(page, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 #Vue de détails d'exercices
 class DetailExerciceView(APIView):
@@ -181,8 +180,7 @@ class DetailExerciceView(APIView):
             return Response({"error": "Exercice non trouvé."}, status=status.HTTP_404_NOT_FOUND)
 
 
-
-#Vue attibution de note
+#Vue d'attribution de note
 class AttribNoteView(APIView):
     def post(self, request, solution_id):
         try:

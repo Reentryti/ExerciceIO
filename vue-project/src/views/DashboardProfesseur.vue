@@ -105,6 +105,7 @@ export default {
     
   },
   methods: {
+    //Fonction de recuperation de la liste des classes
     async fetchClasses() {
       this.loading = true;
       try {
@@ -132,11 +133,11 @@ export default {
     handleExerciseAdded(){
       this.popupClose();
     },
-
+    //Fonction de recuperation de la liste des exercices
     async fetchExercices() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/exercices/api/professeur/exercices', {
+        const response = await axios.get('http://localhost:8000/exercices/professeur/exercices', {
           headers: { Authorization: `Token ${token}` }
         });
         this.exercices = response.data;

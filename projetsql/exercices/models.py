@@ -27,22 +27,25 @@ class Exercice(models.Model):
 class Solution(models.Model):
     exercice = models.ForeignKey(Exercice, on_delete=models.CASCADE, related_name='solutions')
     etudiant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solutions_soumises')
-    fichier = models.FileField(upload_to='solutions/')
+    fichier = models.FileField(upload_to='solutions/', storage=S3Boto3Storage(), verbose_name='Fichier S3')
     date_soumission = models.DateTimeField(auto_now_add=True)
     note = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
 
     @property
     def correction(self):
-        """Accès facile à la correction depuis une solution"""
-        if hasattr(self, '_correction'):
-            return self._correction
-        self._correction = getattr(self, 'correction', None)
-        return self._correction
+        """Version optimisée avec cache"""
+        if not hasattr(self, '_correction_cache'):
+            self._correction_cache = getattr(self, 'correction_rel', None)
+        return self._correction_cache
 
     def trigger_correction(self, provider="DEEPSEEK"):
-        """Méthode pour lancer une correction"""
-        from corrections.services.correction import CorrectionEngine
-        return CorrectionEngine.create_correction(self, provider)
+        """Méthode robuste pour lancer une correction"""
+        from corrections.services import CorrectionEngine
+        try:
+            return CorrectionEngine.create_correction(self, provider)
+        except Exception as e:
+            raise CorrectionError(f"Échec de la correction: {str(e)}")
+
 
     def __str__(self):
         return f"Solution de {self.etudiant} pour {self.exercice}"
