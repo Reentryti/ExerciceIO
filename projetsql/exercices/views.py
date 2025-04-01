@@ -12,6 +12,7 @@ from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
 
+#View pour créer et uploader des exercices
 class UploadExerciceView(APIView):
     parser_classes = [MultiPartParser]
     permission_classes = [IsAuthenticated]
@@ -30,7 +31,6 @@ class UploadExerciceView(APIView):
                 {"error": "Aucun fichier fourni"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
         try:
 
             data = request.data.copy()
@@ -74,7 +74,8 @@ class UploadExerciceView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-#Liste Exercice
+
+#View pour lister les exercices disponibles pour l'étudiant
 class ListeExercicesView(APIView):
     def get(self, request, *args, **kwargs):
         etudiant = request.user
@@ -87,7 +88,26 @@ class ListeExercicesView(APIView):
         serializer = ExerciceSerializer(exercices, many=True)
         return Response(serializer.data)
 
-#Soumission Exercice
+
+#View pour lister les exercices d'une classe pour le professeur
+class ExercicesParClasseForProfView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, classe_id):
+        # Vérifie que l'utilisateur est un professeur
+        if not request.user.is_staff:
+            return Response({"error": "Accès réservé aux professeurs"}, status=403)
+
+        exercices = Exercice.objects.filter(
+            createur=request.user,
+            classes_affected__id=classe_id
+        ).distinct()
+
+        serializer = ExerciceSerializer(exercices, many=True)
+        return Response(serializer.data)
+
+
+#View pour soumettre une solution d'exercice
 class SoumettreSolutionView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
@@ -107,7 +127,8 @@ class SoumettreSolutionView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#Liste Soumission Exercice
+
+#View pour lister les solutions d'un exercice
 class ListeSolutionsView(APIView):
     def get(self, request, exercice_id, *args, **kwargs):
         try:
@@ -119,7 +140,8 @@ class ListeSolutionsView(APIView):
         serializer = SolutionSerializer(solutions, many=True)
         return Response(serializer.data)
 
-#Recent Exercice
+
+#View pour retourner l'exercice le plus récent
 class RecentExerciceView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -154,6 +176,8 @@ class RecentExerciceView(APIView):
             print(f"Erreur: {str(e)}")
             return Response({"error":str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+#View pour lister les exercices crées d'un professeur
 class ProfesseurExercicesView(APIView):
     pagination_class = PageNumberPagination
     permission_classes = [IsAuthenticated]
@@ -169,7 +193,8 @@ class ProfesseurExercicesView(APIView):
         serializer = ExerciceSerializer(page, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-#Vue de détails d'exercices
+
+#View pour afficher les détails d'un exercice
 class DetailExerciceView(APIView):
     def get(self, request, exercice_id):
         try:
@@ -185,14 +210,25 @@ class AttribNoteView(APIView):
     def post(self, request, solution_id):
         try:
             solution = Solution.objects.get(id=solution_id)
+            #Validation de la note
+            note = request.data.get('valeur')
+            if not note or float(note) < 0 or float(note) > 20:
+                return Response({"error": "La note doit etre comprise entre 0 et 20 strictement"}, status =status.HTTP_400_BAD_REQUEST)
+            solution.note = note
+            solution.save()
+            return Response({"message": "Note attribuée avec succés", "note": solution.note}, status = status.HTTP_200_OK)
         except Solution.DoesNotExist:
             return Response({"error": "Solution non existante"}, status=status.HTTP_404_NOT_FOUND)
 
-        serialiser = NoteSerializer(data=request.data)
-        if serialiser.is_valid():
-            serialiser.save(solution=solution)
-            return Response(serialiser.data, status=status.HTTP_201_CREATED)
-        return Response(serialiser.data, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)},status = status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+        #serialiser = NoteSerializer(data=request.data)
+        #if serialiser.is_valid():
+         #   serialiser.save(solution=solution)
+          #  return Response(serialiser.data, status=status.HTTP_201_CREATED)
+        #return Response(serialiser.data, status=status.HTTP_400_BAD_REQUEST)
 
 
 

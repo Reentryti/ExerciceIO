@@ -37,6 +37,7 @@ class SolutionSerializer(serializers.ModelSerializer):
         read_only_fields = ['etudiant', 'date_soumission', 'exercice']
 
     def create(self, validated_data):
+        validated_data['note'] = 0.00
         validated_data['etudiant'] = self.context['request'].user
         validated_data['exercice'] = self.context['exercice']
         return super().create(validated_data)

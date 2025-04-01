@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold mb-4">{{ exercice.titre }}</h1>
         <p class="text-gray-700 mb-4">{{ exercice.description }}</p>
         <p class="text-sm text-gray-500">
-          Date limite : {{ formatDate(exercice.date_a_soumettre) }}
+          Date limite de dépôt : {{ formatDate(exercice.date_a_soumettre) }}
         </p>
 
 
@@ -17,7 +17,7 @@
               <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
               </svg>
-              Télécharger le fichier de l'exercice
+              Télécharger l'exercice
             </button>
           </div>
 
@@ -65,7 +65,7 @@
   
       
           <!-- Bouton de soumission -->
-          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+          <button type="submit" class="bg-red-400 text-white px-4 py-2 rounded-md hover:bg-red-500">
             Déposer la solution
           </button>
         </form>

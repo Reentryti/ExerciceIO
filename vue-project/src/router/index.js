@@ -13,6 +13,7 @@ import Correction from '../views/Correction.vue';
 import Test from '../views/Dash.vue';
 import AddExercice from '../views/Exercice.vue';
 import ExerciceComposant from '../views/ExerciceComposant.vue';
+import Corrections from '../views/Corrections.vue';
 
 
 const routes = [
@@ -30,6 +31,7 @@ const routes = [
     { path: '/donnees', component: Data, name:'Data', meta:{requiresAuth:true},},
     { path: '/correction', component: Correction, name:'Correction', meta:{requiresAuth:true},},
     { path: '/dash', component: Test, name:'Dash', meta:{requiresAuth:true},},
+    { path: '/corrections', component: Corrections, name:'Corrections', meta:{requiresAuth:true}},
 ];
 
 const router = createRouter({

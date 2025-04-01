@@ -32,25 +32,25 @@
 
           <!-- Sous-bloc exercices -->
           <div class="flex col-span-1 h-96 bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
-            <div>
+            <div class="w-full">
               <h3 class="text-gray-900 mt-5 text-base font-bold tracking-tight">
                 Exercices à rendre
               </h3>
-              <p v-if="!latestExercice" class="text-gray-500 mt-2 text-sm ">
+              <p v-if="!latestExercice" class="text-gray-500 mt-2 text-sm">
                 Vous n'avez aucun exercice à remettre
               </p>
-              <div v-if="latestExercice" class="mt-4">
-                <div class="flex justify-between items-center mb-2">
-                  <h4 class="text-sm font-semibold text-gray-900">
+              <div v-if="latestExercice" class="pt-4  h-full">
+                <div class="flex justify-between items-center mb-1">
+                  <h4 class="text-sm font-semibold text-gray-900 ">
                     {{ latestExercice.titre }}
                   </h4>
                   <span class="px-2 py-1 text-xs font-medium rounded-full" :class="isExerciceExpired(latestExercice.date_a_soumettre)? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">
-                    {{ isExerciceExpired(latestExercice.date_a_soumettre)? 'Expired' : 'A rendre' }}
+                    {{ isExerciceExpired(latestExercice.date_a_soumettre)? 'Dépassé' : 'A rendre' }}
                   </span>
                 </div>
-                <p class="text-xs text-gray-600 mb-1">{{ formatDate(latestExercice.date_a_soumettre) }}</p>
-                <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{ latestExercice.description }}</p>
-                <router-link :to="'/exercice/' + latestExercice.id" class="text-sm text-indigo-500 ">
+                <p class="text-xs text-gray-600 mb-5">{{ formatDate(latestExercice.date_a_soumettre) }}</p>
+                <p class="text-sm text-gray-500 mt-3 mb-4 line-clamp-2">{{ latestExercice.description }}</p>
+                <router-link :to="'/exercice/' + latestExercice.id" class="p-2 rounded text-white bg-red-400 hover:text-black">
                   Voir les détails
                 </router-link>
               </div>

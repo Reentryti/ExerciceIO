@@ -1,5 +1,6 @@
 import requests
-from django.conf import settings
+#from django.conf import settings
+from decouple import config
 from django.core.exceptions import ValidationError
 
 class CorrectionEngine:
@@ -12,31 +13,28 @@ class CorrectionEngine:
 
     @classmethod
     def _create_deepseek_correction(cls, solution):
-        from ..models import Correction  # Import relatif
+        from ..models import Correction
 
-        content = cls._extract_content(solution)
-        response = cls._call_deepseek_api(
-            consigne=solution.exercice.consigne,
-            solution=content
-        )
+        #Verifier si la correction existe
+        try:
+            existing_correction = Correction.objects.get(solution=solution)
+            return existing_correction
+        except Correction.DoesNotExist:
 
-        correction = Correction(
-            solution=solution,
-            commentaires=response['commentaires'],
-            note=response['note'],
-            provider='DEEPSEEK',
-            metadata={
-                'api_response': response.get('raw_response'),
-                'content_extracted': content
-            }
-        )
-        correction.full_clean()
-        correction.save()
+            content = cls._extract_content(solution)
+            response = cls._call_deepseek_api(
+                consigne=solution.exercice.description,
+                solution=content
+            )
 
-        solution.note = correction.note
-        solution.save()
+            correction = Correction(solution=solution, commentaires=response['commentaires'], note=response['note'], provider='DEEPSEEK', metadata={'api_response': response.get('raw_response'), 'content_extracted': content})
+            correction.full_clean()
+            correction.save()
 
-        return correction
+            solution.note = correction.note
+            solution.save()
+
+            return correction
 
     @staticmethod
     def _extract_content(solution):
@@ -53,10 +51,15 @@ class CorrectionEngine:
     def _call_deepseek_api(cls, consigne, solution):
         """Appel API avec gestion d'erreur complète"""
         try:
+            from decouple import config
+            
+            api_url = "https://api.deepseek.com/v1/chat/completions"
+            api_key = config('DEEPSEEK_API_KEY', default='')
+            
             response = requests.post(
-                settings.DEEPSEEK_API_URL,
+                api_url,
                 headers={
-                    "Authorization": f"Bearer {settings.DEEPSEEK_API_KEY}",
+                    "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json"
                 },
                 json={
@@ -113,3 +116,64 @@ class CorrectionEngine:
         import re
         match = re.search(r'Note\s*:\s*(\d{1,2}(?:[.,]\d+)?)/20', text, re.IGNORECASE)
         return float(match.group(1).replace(',', '.')) if match else None
+
+
+#Testeur de correction
+        
+def direct_deepseek_call(consigne, solution_content):
+    """Standalone function to call DeepSeek API directly"""
+    import requests
+    from decouple import config
+    
+    # Get API credentials directly with config
+    api_url = config('DEEPSEEK_API_URL', default='https://api.deepseek.com/v1/chat/completions')
+    api_key = config('DEEPSEEK_API_KEY', default='')
+    
+    try:
+        response = requests.post(
+            api_url,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "deepseek-chat",
+                "messages": [{
+                    "role": "user",
+                    "content": f"""
+                    [Rôle] Correcteur automatique d'exercices
+                    [Consigne] {consigne}
+                    [Solution à corriger] {solution_content}
+
+                    Merci de:
+                    1. Analyser rigoureusement la solution
+                    2. Donner une note sur 20 avec justification
+                    3. Proposer des améliorations
+                    4. Formuler des commentaires pédagogiques
+                    """
+                }],
+                "temperature": 0.5,
+                "max_tokens": 2000
+            },
+            timeout=30
+        )
+        
+        response.raise_for_status()
+        content = response.json()['choices'][0]['message']['content']
+        
+        # Simple regex for note extraction
+        import re
+        note_match = re.search(r'Note\s*:\s*(\d{1,2}(?:[.,]\d+)?)/20', content, re.IGNORECASE)
+        note = float(note_match.group(1).replace(',', '.')) if note_match else None
+        
+        return {
+            'commentaires': content,
+            'note': note,
+            'raw_response': response.json()
+        }
+    except Exception as e:
+        return {
+            'commentaires': f"Erreur de correction: {str(e)}",
+            'note': None,
+            'raw_response': None
+        }

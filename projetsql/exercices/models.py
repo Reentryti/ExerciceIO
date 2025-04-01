@@ -29,7 +29,7 @@ class Solution(models.Model):
     etudiant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solutions_soumises')
     fichier = models.FileField(upload_to='solutions/', storage=S3Boto3Storage(), verbose_name='Fichier S3')
     date_soumission = models.DateTimeField(auto_now_add=True)
-    note = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    note = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, default=0.00)
 
     @property
     def correction(self):

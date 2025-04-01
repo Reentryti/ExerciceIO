@@ -219,6 +219,7 @@ REST_FRAMEWORK = {
 
 #IA API KEY
 DEEPSEEK_API_KEY = config('DEEPSEEK_API_KEY', default='')
+DEEPSEEK_API_URL = config('DEEPSEEK_API_URL', default='https://api.deepseek.com/v1/chat/completions')
 #OLLAMA_API_URL = config('OLLAMA_API_URL', default='http://localhost:11434')
 
 #OLLAMA CONFIG
