@@ -9,6 +9,7 @@ from .serializers import ExerciceSerializer, SolutionSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from rest_framework.pagination import PageNumberPagination
+from .plagiat import analyse_nlp
 
 # Create your views here.
 
@@ -231,4 +232,13 @@ class AttribNoteView(APIView):
         #return Response(serialiser.data, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+#Vue detection de plagiat
+class PlagiatDetection(APIView):
+    def get(self, request, exercice_id):
+        solutions = Solution.objects.filter(exercice_id=exercice_id)
+        if len(solutions) < 2:
+            return Response({"message": "Pas assez de solutions pour detecter d'eventuel plagiat"}, status=200)
+        
+        resultat = analyse_nlp(solutions)
+        
+        return Response(resultat)
