@@ -113,46 +113,39 @@
         }
       },
   
-      async connexionGoogle() {
-        try {
-          // Ouvrir une fenêtre popup pour l'authentification Google
-          const googleAuthUrl = 'http://localhost:8000/accounts/google/login/';
-          const popup = window.open(googleAuthUrl, 'Connexion Google', 'width=500,height=600');
+      async connexionGoogle(){
+        //Redirection pour authentification google
+        window.location.href='http://localhost:8000/api/auth/google/login/';
+      },
 
-          // Écouter les messages du popup
-          window.addEventListener('message', (event) => {
-            if (event.origin !== 'http://127.0.0.1:8000') return; // Vérifier l'origine du message
-            if (event.data.token) {
-              // Stocker le token et rediriger
-              localStorage.setItem('token', event.data.token);
-              localStorage.setItem('role', event.data.role);
-              this.$router.push({ name: 'DashboardEtudiant' }); // Redirection en fonction du rôle
-            }
-          });
-        } catch (error) {
-          console.error('Erreur lors de la connexion Google:', error);
+      async inscriptionGoogle(){
+        window.location.href='http://localhost:8000/api/auth/google/login/';
+      },
+
+      handleGoogleCallback(){
+        const urlParam = new URLSearchParams(window.location.search);
+        const token = urlParam.get('token');
+        const email = urlParam.get('email');
+        const role = urlParam.get('role');
+        
+        if (token && email && role){
+          localStorage.setItem('token', token);
+          localStorage.setItem('email', email);
+          localStorage.setItem('role', role);
+
+          const clearUrl = window.location.origin + window.location.pathname;
+          window.history.replaceState({}, document.title, clearUrl);
+
+          //Redirection vers le dashboard
+          router.push({name:'DashboardEtudiant'});
         }
       },
 
-
-      async inscriptionGoogle() {
-        try{ 
-          const googleAuthUrl = 'hhtp://localhost:8000/accounts/google/login/';
-          const popup = window.open(googleAuthUrl, 'Inscription Google', 'width=500, height=600');
-          window.addEventListener('message', (event) => {
-
-          });
-
-        }catch(error){
-          
-        }
-        // Redirection vers l'URL d'inscription Google
-       
-      },
+     
     },
   };
   </script>
-  
+    
   <style scoped>
   /* Styles spécifiques à la page de connexion */
   </style>

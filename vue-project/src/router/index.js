@@ -14,6 +14,7 @@ import Test from '../views/Dash.vue';
 import AddExercice from '../views/Exercice.vue';
 import ExerciceComposant from '../views/ExerciceComposant.vue';
 import Corrections from '../views/Corrections.vue';
+import AuthCallback from '../views/AuthCallback.vue';
 
 
 const routes = [
@@ -32,6 +33,7 @@ const routes = [
     { path: '/correction', component: Correction, name:'Correction', meta:{requiresAuth:true},},
     { path: '/dash', component: Test, name:'Dash', meta:{requiresAuth:true},},
     { path: '/corrections', component: Corrections, name:'Corrections', meta:{requiresAuth:true}},
+    { path: '/auth/callback', component: AuthCallback},
 ];
 
 const router = createRouter({

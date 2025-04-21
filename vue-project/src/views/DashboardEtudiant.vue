@@ -141,7 +141,7 @@ export default {
   methods: {
     async fetchUser() {
       try {
-        const token = localStorage.getItem("token"); // Récupérer le token
+        const token = localStorage.getItem("token");
 
         if (!token) {
           throw new Error("Aucun token trouvé, l'utilisateur n'est pas connecté.");
@@ -206,7 +206,7 @@ export default {
     }
   },
   mounted() {
-    this.fetchUser(); // Récupère l'utilisateur au chargement
+    this.fetchUser();
     this.fetchLatestExercice();
   },
 };

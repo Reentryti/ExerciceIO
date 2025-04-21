@@ -233,7 +233,7 @@ class AttribNoteView(APIView):
 
 
 #Vue detection de plagiat
-class PlagiatDetection(APIView):
+class PlagiatDetectionView(APIView):
     def get(self, request, exercice_id):
         solutions = Solution.objects.filter(exercice_id=exercice_id)
         if len(solutions) < 2:

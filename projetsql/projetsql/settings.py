@@ -172,18 +172,25 @@ SOCIALACCOUNT_PROVIDERS = {
             'client_id': config('GOOGLE_CLIENT_ID'),
             'secret': config('GOOGLE_SECRET'),
         },
-        'SCOPE': ['email', 'first_name', 'last_name'],
+        'SCOPE': [
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/userinfo.profile',
+        ],
         'AUTH_PARAMS': {'access_type': 'online'},
         'METHOD': 'oauth2',
         'VERIFIED_EMAIL': True,
     },
 }
 SOCIALACCOUNT_LOGIN_ON_GET=True
-LOGIN_REDIRECT_URL='/'
+
+LOGIN_REDIRECT_URL= 'http://localhost:5173/auth/callback'
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_AUTO_SIGNUP = True
 
 
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -191,6 +198,8 @@ STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 #    os.path.join(BASE_DIR, '../../vue-project/dist/static'),
 #]
 
+SITE_URL = 'http://localhost:8000'
+FRONTEND_URL = 'http://localhost:5173'
 #Gestion des uploads
 #MEDIA_URL = '/media/'
 #MEDIA_ROOT = ''

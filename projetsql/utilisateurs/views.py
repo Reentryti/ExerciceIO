@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth import login, authenticate
 from rest_framework.views import APIView
+from django.shortcuts import redirect
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -9,7 +10,9 @@ from .models import Utilisateur, Classe
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import datetime
-
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from django.conf import settings
 
 #Page d'accueil
 def index(request):
@@ -181,3 +184,100 @@ class GoogleLoginView(APIView):
         
         except ValueError:
             return Response({"error":"Token invalide"}, status=status.HTTP_401_UNAUTHORIZED)
+
+#Vue pour rediriger vers Google
+class GoogleLoginRedirect(APIView): 
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        #Config du client Oauth2 pour google
+        adapter = GoogleOAuth2Adapter(request=request)
+        #Recuperation des informations du client
+        provider = adapter.get_provider()
+        client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+        client_secret = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['secret']
+        
+
+        callback_url = f"{settings.SITE_URL}/api/auth/google/callback/"
+        client = OAuth2Client(
+            request,
+            client_id,
+            client_secret,
+            adapter.access_token_method,
+            adapter.access_token_url,
+            callback_url,
+        )
+        #Paramaetres supplémentaires
+        authorization_url = adapter.authorize_url
+        scope = adapter.get_provider().get_default_scope()
+        extra_params = {}
+
+        #Redirection vers l'url d'autorisation de google
+        authorization_url = client.get_redirect_url(
+            authorization_url,
+            scope,
+            extra_params
+        )
+        return redirect(authorization_url)
+
+#Vue pour gerer le callback de google
+def google_callback(request):
+    code = request.GET.get('code')
+    if not code:
+        return redirect(f"{settings.FRONTEND_URL}/login?error=authentication_failed")
+
+    #Allauth pour le traitement du code d'autorisation
+    adapter = GoogleOAuth2Adapter(request=request)
+    provider = adapter.get_provider()
+    client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+    client_secret = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['secret']
+        
+
+    callback_url = f"{settings.SITE_URL}/api/auth/google/callback/"
+    client = OAuth2Client(
+        request,
+        client_id,
+        client_secret,
+        adapter.access_token_method,
+        adapter.access_token_url,
+        callback_url,
+    )
+
+    access_token = client.get_access_token(code)
+    user.data = adapter.get_user_info(access_token)
+    email = user_data.get('email')
+
+    #Creer un utilisateur si nouveau
+    try:
+        social_account = SocialAccount.objects.get(provider='google', uid=user_data['id'])
+        user = social_account.user
+    except SocialAccount.DoesNotExist:
+        try:
+            user = Utilisateur.objects.create(email=email)
+        except Utilisateur.DoesNotExist:
+            user = Utilisateur.objects.create(
+                email = email,
+                prenom = user_data.get('given_name', ''),
+                nom = user_data.get('family_name', ''),
+                role = 'etudiant'
+            )
+        
+        SocialAccount.objects.create(
+            user = user,
+            provider = 'google',
+            uid = user_data['id'],
+            extra_data = user_data
+        )
+
+    #Connecter l'Utilisateur
+    login(request, user, backend='allauth.account.auth_backends.AuthenticationBackend')
+    #Token d'authentification
+    token, created = Token.objects.get_or_create(user=user)
+
+
+    return redirect(
+        f"{settings.FRONTEND_URL}/auth/callback?"
+        f"token={token.key}&"
+        f"email={user.email}&"
+        f"role={user.role}"
+    )
