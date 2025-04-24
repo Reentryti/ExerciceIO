@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index, RegisterView, LoginView, LogoutView, ClasseListView, UserProfileView, ProfesseurClassesView, GoogleLoginRedirect, google_callback
+from .views import index, RegisterView, LoginView, LogoutView, ClasseListView, UserProfileView, ProfesseurClassesView, GoogleLoginRedirect, google_callback, AssignClasseView
 
 urlpatterns = [
     # Page d'accueil
@@ -18,4 +18,5 @@ urlpatterns = [
     #API endpoint pour connexion via google
     path('auth/google/login/', GoogleLoginRedirect.as_view(), name='google_login'),
     path('auth/google/callback/', google_callback, name='google_callback'),
+    path('assign-classe/', AssignClasseView.as_view(), name='assign-classe'),
 ]

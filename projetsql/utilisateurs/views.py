@@ -96,12 +96,21 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user  # Récupérer l'utilisateur connecté
+        user = request.user
         user_data = UserSerializer(user).data
         current_date = datetime.now().strftime("%A %d %B %Y")
+
+        #Ajout de classe pour les users n'en ayant pas
+        if not user.classe:
+            classes = Classe.objects.all()
+            classes_data = [{"id":c.id, "nom":c.nom} for c in classes]
+        else:
+            classes_data = None
+
         return Response({
             "user":user_data,
             "date":current_date,
+            "classes":classes_data
         }, status=status.HTTP_200_OK)
         #return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -131,6 +140,29 @@ class ChangePasswordView(APIView):
 
         return Response({"message": "Mot de passe changé avec succès"}, status=status.HTTP_200_OK)
 
+#Vue pour assigner les classes
+class AssignClasseView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        classe_id = request.data.get('classe_id')
+
+        if not classe_id:
+            return Response({"error": "Id CLasse requis"}, status = status.HTTP_400_BAD_REQUEST)
+        try:
+            classe = Classe.objects.get(id=classe_id)
+        except Classe.DoesNotExist:
+            return Response({"error": "Classe non existante"}, status = status.HTTP_404_NOT_FOUND)
+
+        #Verifions que l'Utilisateur na pas de classe
+        if user.classe:
+            return Response({"error": "Vous avez deja une classe"}, status = status.HTTP_400_BAD_REQUEST)
+
+        user.classe = classe
+        user.save()
+        return Response({"succés":"Classe attribuée avec succés"}, status =status.HTTP_200_OK)
+        
 
 class ProfesseurClassesView(APIView):
     permission_classes = [IsAuthenticated]

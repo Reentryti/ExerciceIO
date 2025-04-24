@@ -15,31 +15,39 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-600">Prénom</label>
-              <input
-                type="text"
-                :value="user.prenom"
-                readonly
-                class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm"
-              />
+              <input type="text" :value="user.prenom"readonly class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm"/>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-600">Nom</label>
-              <input
-                type="text"
-                :value="user.nom"
-                readonly
-                class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm"
-              />
+              <input type="text" :value="user.nom" readonly class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm"/>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-600">Email</label>
-              <input
-                type="email"
-                :value="user.email"
-                readonly
-                class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm"
-              />
+              <input type="email" :value="user.email" readonly class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm"/>
             </div>
+            <!-- Selecttion d'une classe -->
+             <div v-if="!user.classe && classes && classes.length > 0">
+              <label for="" class="block text-sm font-medium text-gray-600">
+                Choisir une classe
+              </label>
+              <select v-model="selectedClasse" name="" id="" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-300">
+                <option disabled value="">
+                  Sélectionnez une classe
+                </option>
+                <option v-for="classe in classes" :key="classe.id" :value="classe.id"> 
+                  {{ classe.nom }}
+                </option>
+              </select>
+              <button @click="assignClasse" class="mt-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Valider la classse
+              </button>
+             </div>
+             <div v-else-if="user.classe">
+              <label for="" class="block text-sm font-medium text-gray-500">
+                Classe
+              </label>
+              <input type="text" name="" id="" :value="user.classe.nom" readonly class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm">
+             </div>
           </div>
         </div>
 
@@ -50,41 +58,23 @@
           <!-- Ancien mot de passe -->
           <div class="mb-4">
             <label for="oldPassword" class="block text-sm font-medium text-gray-600">Ancien mot de passe</label>
-            <input
-              v-model="password.oldPassword"
-              type="password"
-              id="oldPassword"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-            />
+            <input v-model="password.oldPassword" type="password" id="oldPassword" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"/>
           </div>
 
           <!-- Nouveau mot de passe -->
           <div class="mb-4">
             <label for="newPassword" class="block text-sm font-medium text-gray-600">Nouveau mot de passe</label>
-            <input
-              v-model="password.newPassword"
-              type="password"
-              id="newPassword"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-            />
+            <input v-model="password.newPassword" type="password" id="newPassword" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"/>
           </div>
 
           <!-- Confirmation du nouveau mot de passe -->
           <div class="mb-6">
             <label for="confirmPassword" class="block text-sm font-medium text-gray-600">Confirmer le nouveau mot de passe</label>
-            <input
-              v-model="password.confirmPassword"
-              type="password"
-              id="confirmPassword"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-            />
+            <input v-model="password.confirmPassword" type="password" id="confirmPassword" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"/>
           </div>
 
           <!-- Bouton de soumission -->
-          <button
-            @click="changePassword"
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+          <button @click="changePassword" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
             Changer le mot de passe
           </button>
         </div>
@@ -97,38 +87,69 @@
 import axios from 'axios';
 
 export default {
-  data() {
-    return {
-      // Données de l'utilisateur
-      user: {
+  data(){
+    return{
+      //Données de l'utilisateur
+      user:{
         prenom: "",
         nom: "",
         email: "",
+        classe: null
       },
-      // Données pour le changement de mot de passe
+      //Données pour le changement de mot de passe
       password: {
         oldPassword: "",
         newPassword: "",
         confirmPassword: "",
       },
+      classes : [], //Liste des classes dispo
+      selectedClasse : "" //Classe selectionnée
     };
   },
   methods: {
-    // Récupérer les informations de l'utilisateur
-    async fetchUser() {
-      try {
+    //Récupérer les informations de l'utilisateur
+    async fetchUser(){
+      try{
         const response = await axios.get("http://localhost:8000/api/user/", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
         this.user = response.data;
+        this.classes = response.data.classes || [];
       } catch (error) {
         console.error("Erreur lors de la récupération des informations utilisateur :", error);
       }
     },
+
+    //Attribuer une classe
+    async assignClasse(){
+      if(!this.selectedClasse){
+        alert("Veuillez selectionner une classe");
+        return;
+      }
+      try{
+        const response = await axios.post("http://localhost:8000/api/assign-class/",
+          {
+            classe_id: this.selectedClasse
+          },
+          {
+            headers:{
+              Authorization:`Bearer ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+        alert("Classe attribué avec succés");
+        this.fetchUser();
+  
+      }catch(error){
+        console.error("Erreur lors de l'attribution de la classe:", error);
+        alert("Une erreur s'est produite  lors de l'attribution de la classe");
+      }
+    },
+
     // Changer le mot de passe
-    async changePassword() {
+    async changePassword(){
       // Validation des champs
       if (this.password.newPassword !== this.password.confirmPassword) {
         alert("Les nouveaux mots de passe ne correspondent pas.");
