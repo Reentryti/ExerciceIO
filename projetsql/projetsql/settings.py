@@ -173,12 +173,17 @@ SOCIALACCOUNT_PROVIDERS = {
             'secret': config('GOOGLE_SECRET'),
         },
         'SCOPE': [
-            'https://www.googleapis.com/auth/userinfo.email',
-            'https://www.googleapis.com/auth/userinfo.profile',
+            'email',
+            'profile',
+            'openid'
         ],
-        'AUTH_PARAMS': {'access_type': 'online'},
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+            'prompt': 'select_account'
+        },
+        'OAUTH_PKCE_ENABLED' : True,
         'METHOD': 'oauth2',
-        'VERIFIED_EMAIL': True,
+        'VERIFIED_EMAIL': True
     },
 }
 SOCIALACCOUNT_LOGIN_ON_GET=True

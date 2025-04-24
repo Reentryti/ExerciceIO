@@ -13,7 +13,14 @@ from datetime import datetime
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.conf import settings
+import logging
+import requests
+from django.contrib.auth import get_user_model
+from allauth.socialaccount.models import SocialApp, SocialAccount
+from django.core.exceptions import ObjectDoesNotExist
+from urllib.parse import urlencode
 
+logger = logging.getLogger(__name__)
 #Page d'accueil
 def index(request):
     return render(request, 'index.html')
@@ -138,146 +145,166 @@ class ProfesseurClassesView(APIView):
         serializer = ClasseSerializer(classes_affected, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-# Oauth2 Authentification
-class GoogleLoginView(APIView):
-    permission_classes = [AllowAny]
+#Oauth2 Authentification
+#class GoogleLoginView(APIView):
+ #   permission_classes = [AllowAny]
 
-    def post(self, request):
-        token = request.data.get('token')
-        try :
-            idinfo = id_token.verify_oauth2_token(
-                token, 
-                google_requests.Request(),
-                settings.GOOGLE_CLIENT_ID   
-            )
+  #  def post(self, request):
+   #     token = request.data.get('token')
+    #    try :
+     #       idinfo = id_token.verify_oauth2_token(
+      #          token, 
+       #         google_requests.Request(),
+        #        settings.GOOGLE_CLIENT_ID   
+         #   )
 
-            email = idinfo.get('email')
-            prenom = idinfo.get('given_name')
-            nom = idinfo.get('family_name')
+          #  email = idinfo.get('email')
+           # prenom = idinfo.get('given_name')
+            #nom = idinfo.get('family_name')
 
-            try:
-                user = Utilisateur.objects.get(email=email)
-            except Utilisateur.DoesNotExist:
-                user = Utilisateur.objects.create(
-                    email  = email,
-                    prenom =   prenom,
-                    nom = nom,
-                )
+            #try:
+             #   user = Utilisateur.objects.get(email=email)
+            #except Utilisateur.DoesNotExist:
+            #    user = Utilisateur.objects.create(
+             #       email  = email,
+              #      prenom =   prenom,
+               #     nom = nom,
+                #)
 
-                default_classes = request.data.get("classes", [])
-                if default_classes:
-                    classes = Classe.objects.filter(id__in= default_classes)
-                    if classes.exists():
-                        user.classes.set(classes)
-                user.save()
+                #default_classes = request.data.get("classes", [])
+                #if default_classes:
+                 #   classes = Classe.objects.filter(id__in= default_classes)
+                  #  if classes.exists():
+                   #     user.classes.set(classes)
+                #user.save()
 
-            login(request, user, backend='')
-            token, created = Token.objects.get_or_create(user=user)
+            #login(request, user, backend='')
+            #token, created = Token.objects.get_or_create(user=user)
 
-            return Response({
-                "message" : "Connexion avec Google réussie",
-                "token": token.key,
-                "role": user.role,
-                "nom": nom,
-                "prenom": prenom
-            }, status=status.HTTP_200_OK)
+            #return Response({
+             #   "message" : "Connexion avec Google réussie",
+              #  "token": token.key,
+               # "role": user.role,
+                #"nom": nom,
+                #"prenom": prenom
+            #}, status=status.HTTP_200_OK)
         
-        except ValueError:
-            return Response({"error":"Token invalide"}, status=status.HTTP_401_UNAUTHORIZED)
+        #except ValueError:
+         #   return Response({"error":"Token invalide"}, status=status.HTTP_401_UNAUTHORIZED)
 
-#Vue pour rediriger vers Google
-class GoogleLoginRedirect(APIView): 
+
+#Vue pour l'authentification Google
+class GoogleLoginRedirect(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        #Config du client Oauth2 pour google
-        adapter = GoogleOAuth2Adapter(request=request)
-        #Recuperation des informations du client
-        provider = adapter.get_provider()
-        client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
-        client_secret = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['secret']
-        
+        try:
+            #Google adapter
+            adapter = GoogleOAuth2Adapter(request=request)
+            #App provider de google 
+            app = SocialApp.objects.get(provider='google')
+            #Url authentification
+            authorize_url = adapter.authorize_url
+            callback_url = f"{settings.SITE_URL}/api/auth/google/callback/"
+            state = adapter.stateFromRequest(request) if hasattr(adapter, 'stateFromRequest') else None
+            
+            #Parametres
+            params = {
+                'client_id': app.client_id,
+                'redirect_uri': callback_url,
+                'scope': 'email profile openid',
+                'response_type': 'code',
+                'access_type': 'offline',
+            }
+            if state:
+                params['state'] = state   
+            #Url redirection
+            auth_url = f"{authorize_url}?{urlencode(params)}"
+            return redirect(auth_url)
+            
+        except Exception as e:
+            logger.error(f"Google login error: {str(e)}", exc_info=True)
+            return Response({"error": "Authentication error"}, status=500)
 
-        callback_url = f"{settings.SITE_URL}/api/auth/google/callback/"
-        client = OAuth2Client(
-            request,
-            client_id,
-            client_secret,
-            adapter.access_token_method,
-            adapter.access_token_url,
-            callback_url,
-        )
-        #Paramaetres supplémentaires
-        authorization_url = adapter.authorize_url
-        scope = adapter.get_provider().get_default_scope()
-        extra_params = {}
 
-        #Redirection vers l'url d'autorisation de google
-        authorization_url = client.get_redirect_url(
-            authorization_url,
-            scope,
-            extra_params
-        )
-        return redirect(authorization_url)
-
-#Vue pour gerer le callback de google
+#Authentification callback
 def google_callback(request):
     code = request.GET.get('code')
+    error = request.GET.get('error')
+    
+    if error:
+        logger.error(f"Error returned by Google: {error}")
+        return redirect(f"{settings.FRONTEND_URL}/login?error=google_{error}")
+    
     if not code:
-        return redirect(f"{settings.FRONTEND_URL}/login?error=authentication_failed")
+        logger.error("No authorization code received")
+        return redirect(f"{settings.FRONTEND_URL}/login?error=no_code")
 
-    #Allauth pour le traitement du code d'autorisation
-    adapter = GoogleOAuth2Adapter(request=request)
-    provider = adapter.get_provider()
-    client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
-    client_secret = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['secret']
-        
-
-    callback_url = f"{settings.SITE_URL}/api/auth/google/callback/"
-    client = OAuth2Client(
-        request,
-        client_id,
-        client_secret,
-        adapter.access_token_method,
-        adapter.access_token_url,
-        callback_url,
-    )
-
-    access_token = client.get_access_token(code)
-    user.data = adapter.get_user_info(access_token)
-    email = user_data.get('email')
-
-    #Creer un utilisateur si nouveau
     try:
-        social_account = SocialAccount.objects.get(provider='google', uid=user_data['id'])
-        user = social_account.user
-    except SocialAccount.DoesNotExist:
-        try:
-            user = Utilisateur.objects.create(email=email)
-        except Utilisateur.DoesNotExist:
-            user = Utilisateur.objects.create(
-                email = email,
-                prenom = user_data.get('given_name', ''),
-                nom = user_data.get('family_name', ''),
-                role = 'etudiant'
-            )
+        adapter = GoogleOAuth2Adapter(request=request)
+        app = SocialApp.objects.get(provider='google')
+        #Code a token
+        token_url = adapter.access_token_url
+        callback_url = f"{settings.SITE_URL}/api/auth/google/callback/"
+        #Parametres token
+        token_params = {
+            'code': code,
+            'client_id': app.client_id,
+            'client_secret': app.secret,
+            'redirect_uri': callback_url,
+            'grant_type': 'authorization_code',
+        }
+        token_response = requests.post(token_url, data=token_params).json()
+        access_token = token_response.get('access_token')
         
-        SocialAccount.objects.create(
-            user = user,
-            provider = 'google',
-            uid = user_data['id'],
-            extra_data = user_data
-        )
+        if not access_token:
+            logger.error(f"Failed to get access token: {token_response}")
+            return redirect(f"{settings.FRONTEND_URL}/login?error=token_error")
+            
+        #Recuperation user informations
+        userinfo_url = "https://openidconnect.googleapis.com/v1/userinfo"
+        headers = {'Authorization': f'Bearer {access_token}'}
+        user_data = requests.get(userinfo_url, headers=headers).json()
+    
+        if 'error' in user_data:
+            logger.error(f"Google API Error: {user_data['error']}")
+            return redirect(f"{settings.FRONTEND_URL}/login?error=api_error")
+        
+        try:
+            social_account = SocialAccount.objects.get(provider='google', uid=user_data['sub'])
+            user = social_account.user
+        except SocialAccount.DoesNotExist:
+    
+            User = get_user_model()
+            #Creation de l'Utilisateur
+            user = User.objects.create(
+                email=user_data['email'],
+                prenom=user_data.get('given_name', ''),
+                nom=user_data.get('family_name', ''),
+                role='etudiant'
+            )
+            #Creation du compte social
+            SocialAccount.objects.create(
+                user=user,
+                provider='google',
+                uid=user_data['sub'],
+                extra_data=user_data
+            )
 
-    #Connecter l'Utilisateur
-    login(request, user, backend='allauth.account.auth_backends.AuthenticationBackend')
-    #Token d'authentification
-    token, created = Token.objects.get_or_create(user=user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        token, _ = Token.objects.get_or_create(user=user)
+        #Redirection
+        dashboard_path = '/auth/callback'
+        redirect_url = f"{settings.FRONTEND_URL}{dashboard_path}?token={token.key}&email={user.email}&user_id={user.id}&role={user.role}"
+        print(f"REDIRECTION URL: {redirect_url}")
+        print(f"settings.FRONTEND_URL: {settings.FRONTEND_URL}")
+        print(f"dashboard_path: {dashboard_path}")
 
+        #If token create
+        print(f"User: {user.email}, Token: {token.key}, Role: {user.role}")
 
-    return redirect(
-        f"{settings.FRONTEND_URL}/auth/callback?"
-        f"token={token.key}&"
-        f"email={user.email}&"
-        f"role={user.role}"
-    )
+        return redirect(redirect_url)
+                
+    except Exception as e:
+        logger.error(f"Google authentication error: {str(e)}", exc_info=True)
+        return redirect(f"{settings.FRONTEND_URL}/login?error=auth_failed")
