@@ -84,7 +84,8 @@
 </template>
 
 <script>
-import axios from 'axios';
+//import axios from 'axios';
+import api from '@/utils/axios-inter';
 
 export default {
   data(){
@@ -103,12 +104,17 @@ export default {
         confirmPassword: "",
       },
       classes : [], //Liste des classes dispo
-      selectedClasse : "" //Classe selectionnée
+      selectedClasse : "", //Classe selectionnée
+      loading: true,
+      error: false,
+      errorMessage: ""//Message d'erreur
     };
   },
   methods: {
     //Récupérer les informations de l'utilisateur
     async fetchUser(){
+      this.loading = true;
+      this.error = false;
       try{
         const response = await axios.get("http://localhost:8000/api/user/", {
           headers: {
@@ -119,6 +125,11 @@ export default {
         this.classes = response.data.classes || [];
       } catch (error) {
         console.error("Erreur lors de la récupération des informations utilisateur :", error);
+        this.error = true;
+        this.errorMessage = "Impossible de recuperer les informatinos ";
+      }
+      finally{
+        this.loading = false;
       }
     },
 
@@ -128,8 +139,10 @@ export default {
         alert("Veuillez selectionner une classe");
         return;
       }
+      this.loading = true;
       try{
-        const response = await axios.post("http://localhost:8000/api/assign-class/",
+
+        await axios.post("http://localhost:8000/api/assign-class/",
           {
             classe_id: this.selectedClasse
           },
@@ -145,6 +158,8 @@ export default {
       }catch(error){
         console.error("Erreur lors de l'attribution de la classe:", error);
         alert("Une erreur s'est produite  lors de l'attribution de la classe");
+      }finally{
+        this.loading = false;
       }
     },
 
