@@ -5,7 +5,7 @@ from storages.backends.s3boto3 import S3Boto3Storage
 
 
 class CorrectionFileStorage(S3Boto3Storage):
-    """Stockage S3 personnalisé pour les corrections annotées"""
+    """Stockage S3"""
     location = 'annotated-corrections'
     file_overwrite = False
     default_acl = 'private'
