@@ -80,9 +80,12 @@
           </div>
 
           <div>
-            <a :href="solution.fichier.url" target="_blank">
+            <a v-if="solution.fichier && solution.fichier.url" :href="solution.fichier.url" target="_blank">
               Voir
             </a>
+            <span v-else class="text-gray-500 text-xs">
+              Fichier non disponible
+            </span>
           </div>
 
         </li>
