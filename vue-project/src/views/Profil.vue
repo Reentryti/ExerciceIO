@@ -85,7 +85,8 @@
 
 <script>
 //import axios from 'axios';
-import api from '@/utils/axios-inter';
+
+import axios from 'axios';
 
 export default {
   data(){
@@ -116,12 +117,20 @@ export default {
       this.loading = true;
       this.error = false;
       try{
+        const token = localStorage.getItem('token');
         const response = await axios.get("http://localhost:8000/api/user/", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            "Authorization" : `Token ${token}`,
+              "Content-Type": "application/json"
           },
         });
-        this.user = response.data;
+
+        this.user = response.data.user;
+
+        //Logs
+        console.log("Données recues : ", this.user);
+        
+        
         this.classes = response.data.classes || [];
       } catch (error) {
         console.error("Erreur lors de la récupération des informations utilisateur :", error);
