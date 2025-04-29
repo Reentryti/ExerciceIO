@@ -9,7 +9,7 @@
       </div>
       
       <!-- Étape de sélection de classe -->
-      <div v-else-if="authSuccess && userRole === 'etudiant' && !classeSelected">
+      <div v-else-if="authSuccess && userRole === 'etudiant' && !classeSelected && !hasClasse">
         <h2 class="text-2xl font-bold mb-4">Bienvenue {{ userEmail }} !</h2>
         <p class="mb-4 text-gray-600">Veuillez sélectionner votre classe pour continuer :</p>
         
@@ -78,6 +78,7 @@ export default{
     const selectedClasse = ref('');
     const classes = ref([]);
     const loadingClasses = ref(false);
+    const hasClasse = ref(false);
     
     onMounted(() => {
       handleAuthCallback();
@@ -116,12 +117,42 @@ export default{
       
       //Authentification réussie
       authSuccess.value = true;
-      loading.value = false;
       
-      //Chargement des classes
-      loadClasses();
+      //Verification de la classe
+      checkUserClass();
     };
     
+    const checkUserClass = async() => {
+      try{
+        const config = {
+          headers : {
+            'Authorization': `Token ${userToken.value}`
+          }
+        };
+
+        const response = await axios.get('http://localhost:8000/api/user/', config);
+        
+        //Log
+        console.log("Réponse de l'API :", response.data);
+
+        // Vérifier correctement si l'utilisateur a une classe
+        if(response.data.user && response.data.user.classe !== null) {
+          console.log("L'utilisateur a déjà une classe", response.data.user.classe);
+          hasClasse.value = true;
+          finalizeAuthentication();
+        } else {
+          console.log("L'utilisateur n'a pas de classe");
+          loadClasses();
+        }
+        
+        loading.value = false;
+      } catch(error) {
+        console.error("Erreur lors de la vérification du profil", error);
+        errorMessage.value = "Impossible de vérifier le profil";
+        loading.value = false;
+      }
+    };
+
     const loadClasses = async () => {
       loadingClasses.value = true;
       try{
@@ -152,18 +183,29 @@ export default{
             'Authorization': `Token ${userToken.value}`
           }
         };
+        
+        //Log
+        console.log("Envoi des données:", { classe_id: selectedClasse.value });
       
-        await axios.post(
-          'http://localhost:8000/api/assign-classe/', 
+        const response = await axios.post('http://localhost:8000/api/assign-classe/', 
           { classe_id: selectedClasse.value },
           config
         );
         
+        console.log("Réponse assign-classe:", response.data);
+        
         classeSelected.value = true;
         finalizeAuthentication();
       } catch(error) {
-        console.error("Erreur lors de la mise à jour de la classe:", error);
-        errorMessage.value = "Impossible d'associer la classe à votre compte. Veuillez réessayer.";
+        console.error("Erreur lors de la mise à jour de la classe:", error.response?.data || error.message);
+        //Redirection
+        if(error.response?.data.error === "Vous avez une classe"){
+          console.log("Utilisateur a deja une classe");
+          hasClasse.value = true;
+          finalizeAuthentication();
+        }else{
+        errorMessage.value = error.response?.data?.error || "Impossible d'associer la classe à votre compte. Veuillez réessayer.";
+        }
       }
     };
     
@@ -175,11 +217,11 @@ export default{
       localStorage.setItem('user_id', userId.value);
       
       //Redirection
-      //if (userRole.value === 'professeur') {
-        //router.push({ name: 'DashboardProfesseur' });
-      //} else {
+      if (userRole.value === 'professeur') {
+        router.push({ name: 'DashboardProfesseur' });
+      } else {
         router.push({ name: 'DashboardEtudiant' });
-      //}
+      }
     };
     
     const redirectToLogin = () => {
@@ -197,7 +239,8 @@ export default{
       classes,
       loadingClasses,
       confirmClasse,
-      redirectToLogin
+      redirectToLogin,
+      hasClasse
     };
   }
 };
