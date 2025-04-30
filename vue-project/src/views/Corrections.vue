@@ -63,7 +63,7 @@
           </thead>
           <tbody>
             <tr v-for="solution in solutions" :key="solution.id">
-              <td class="py-2 px-4 border-b">{{ solution.etudiant?.email }}</td>
+              <td class="py-2 px-4 border-b">{{ solution.etudiant_nom }}</td>
               <td class="py-2 px-4 border-b">{{ formatDate(solution.date_soumission) }}</td>
               <td class="py-2 px-4 border-b">
                 <input v-model="solution.note" type="number" min="0" max="20" step="0.5" @change="updateNote(solution)" class="w-20 p-1 border rounded">
@@ -147,7 +147,7 @@ export default {
         const response = await axios.get(`http://localhost:8000/exercices/professeur/classes/${classeId}/exercices/`, {
           headers: { 
             "Authorization": `Token ${token}`, 
-            "Content-Type": "application/json"  // Fixed typo: was "appplication/json"
+            "Content-Type": "application/json"
           }
         });
         this.exercices = response.data;
@@ -181,7 +181,7 @@ export default {
 
     backToClasses() {
       this.currentView = 'classes';
-      this.selectedClasse = null;  // Fixed: was selectClasse (function name) instead of selectedClasse (property)
+      this.selectedClasse = null;
       this.exercices = [];
     },
     
@@ -216,59 +216,59 @@ export default {
         console.error("Erreur mise à jour note:", error);
       }
     },
-    
+
     async correctSolutionWithDeepSeek(solutionId) {
-      this.loading = true;
       try {
+        this.loading = true;
         const token = localStorage.getItem('token');
-        await axios.post(`http://localhost:8000/api/solutions/${solutionId}/corriger-avec-deepseek/`, {}, {
-          headers: {
-            "Authorization": `Token ${token}`,
-            "Content-Type": "application/json"
-          }
-        });
-        
-        // Refresh solutions to get updated correction
-        if (this.selectedExercice) {
-          await this.selectExercice(this.selectedExercice);
+
+        const response = await axios.post(`http://localhost:8000/corrections/solutions/${solutionId}/corriger/`,
+          {}, {
+            headers: {
+              "Authorization": `Token ${token}`,
+              "Content-Type": "application/json"
+            }
+          });
+
+        const solutionIndex = this.solutions.findIndex(s => s.id === solutionId);
+        if (solutionIndex !== -1) {
+          this.solutions[solutionIndex].note = response.data.note;
         }
-        
+        alert('Correction effectuée avec succès');
+
       } catch (error) {
-        console.error("Erreur lors de la correction avec DeepSeek:", error.response?.data || error.message);
-        alert("Erreur lors de la correction avec DeepSeek. Veuillez vérifier les logs.");
+        console.error("Erreur lors de la correction", error);
+        alert('Erreur lors de la correction: ' + (error.response?.data?.message || error.message));
       } finally {
         this.loading = false;
       }
     },
-    
+
     async correctWithDeepSeek() {
-      if (!this.selectedExercice || this.solutions.length === 0) {
-        alert("Aucune solution disponible à corriger");
-        return;
-      }
-      
-      this.loading = true;
       try {
+        this.loading = true;
         const token = localStorage.getItem('token');
-        await axios.post(`http://localhost:8000/api/exercices/${this.selectedExercice.id}/corriger-solutions/`, {
-          provider: 'DEEPSEEK'
-        }, {
-          headers: {
-            "Authorization": `Token ${token}`,
-            "Content-Type": "application/json"
+        
+        // Updated URL path to match Django URL structure
+        const response = await axios.post(`http://localhost:8000/corrections/exercices/${this.selectedExercice.id}/corriger-toutes/`,
+          {}, {
+            headers: {
+              "Authorization": `Token ${token}`,
+              "Content-Type": "application/json"
+            }
           }
-        });
+        );
         
-        // Refresh solutions to get updated corrections
         await this.selectExercice(this.selectedExercice);
-        
+        alert('Toutes les solutions sont corrigées');
       } catch (error) {
-        console.error("Erreur lors de la correction groupée avec DeepSeek:", error.response?.data || error.message);
-        alert("Erreur lors de la correction avec DeepSeek. Veuillez vérifier les logs.");
+        console.error("Erreur de la correction globale", error);
+        alert('Erreur lors de la correction: ' + (error.response?.data?.message || error.message));
       } finally {
         this.loading = false;
       }
     }
+  
   },
   created() {
     this.fetchClasses();

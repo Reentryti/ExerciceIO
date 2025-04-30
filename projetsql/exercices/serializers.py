@@ -31,9 +31,10 @@ class ExerciceSerializer(serializers.ModelSerializer):
         return exercice
 
 class SolutionSerializer(serializers.ModelSerializer):
+    etudiant_nom = serializers.SerializerMethodField()
     class Meta:
         model = Solution
-        fields = ['id', 'exercice', 'etudiant', 'fichier', 'date_soumission', 'note']
+        fields = ['id', 'exercice', 'etudiant','etudiant_nom', 'fichier', 'date_soumission', 'note']
         read_only_fields = ['etudiant', 'date_soumission', 'exercice']
 
     def create(self, validated_data):
@@ -41,8 +42,10 @@ class SolutionSerializer(serializers.ModelSerializer):
         validated_data['etudiant'] = self.context['request'].user
         validated_data['exercice'] = self.context['exercice']
         return super().create(validated_data)
-
-
+    def get_etudiant_nom(self, obj):
+        if obj.etudiant:
+            return f"{obj.etudiant.nom} {obj.etudiant.prenom}"
+        return None
 class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model= Note

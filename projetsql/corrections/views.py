@@ -10,133 +10,81 @@ from exercices.models import Exercice
 
 # Create your views here.
 
-
-class SoumettreSolutionAPI(APIView):
+#Vue pour la correction par IA
+class SoumettreCorrectionAPI(APIView):
     def post(self, request, exercice_id):
+        #Recuperation de l'exercice
         exercice = get_object_or_404(Exercice, pk=exercice_id)
-        solution_texte = request.data.get('solution_texte', '')
-        
-        soumission = Soumission.objects.create(
+        #Si solution
+        exist_solution = Solution.objects.filter(
             exercice=exercice,
-            eleve=request.user,
-            solution_texte=solution_texte
-        )
+            etudiant=request.user
+        ).first()
         
+        if exist_solution:
+            return Response({'status':'error','message':'Solution deja existante'}, status=status.HTTP_400_BAD_REQUEST)
+
+        #Solution
+        solution = Solution.objects.create(
+            exercice=exercice,
+            etudiant =request.user,
+            fichier=request.FILES.get('fichier'),
+            note=0.00 #Note par défaut
+        )
+
         # Correction automatique avec DeepSeek
         try:
-            correction_data = CorrectionEngine(
-                exercice.consigne,
-                solution_texte
-            )
+            correction = solution.trigger_correction(provider="DEEPSEEK")
             
-            Correction.objects.create(
-                soumission=soumission,
-                commentaires=correction_data.get('commentaires', ''),
-                note=correction_data.get('note'),
-                corrige_par=None,
-                est_auto_corrigee=True
-            )
+            return Response({'status': 'success', 'solution': solution.id, 'correction': {
+                'note': float(solution.note),
+                'commentaires':correction.commentaires if hasattr (correction, 'commentaire') else ''
+            }}, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            solution.delete()
+            return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CorrigerSolutionAPI(APIView):
+    def post(self, request, solution_id):
+        try:
+            solution = Solution.objects.get(pk=solution_id)
+            correction = solution.trigger_correction(provider="DEEPSEEK")
             
             return Response({
                 'status': 'success',
-                'correction': correction_data
-            }, status=status.HTTP_201_CREATED)
+                'note': solution.note,
+                'commentaires': getattr(correction, 'commentaires', '')
+            }, status=status.HTTP_200_OK)
             
+        except Solution.DoesNotExist:
+            return Response({'status': 'error', 'message': 'Solution non trouvée'}, status=404)
         except Exception as e:
-            return Response({
-                'status': 'error',
-                'message': str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-#Liste des corrections
-class ListeCorrectionAPI(APIView):
-    """API pour lister les corrections d'un élève"""
-    
-    def get(self, request):
-        # Filtrer par élève si l'utilisateur est un élève
-        user = request.user
-        
-        # Si l'utilisateur est un enseignant, on peut renvoyer toutes les corrections
-        # Sinon, on filtre pour n'avoir que celles de l'élève
-        if user.is_staff or user.groups.filter(name='enseignants').exists():
-            corrections = Correction.objects.all().order_by('-date_correction')
-        else:
-            corrections = Correction.objects.filter(
-                solution__eleve=user
-            ).order_by('-date_correction')
-        
-        # Sérialisation des données
-        data = []
-        for correction in corrections:
-            try:
-                exercice_titre = correction.solution.exercice.titre
-                exercice_id = correction.solution.exercice.id
-            except:
-                exercice_titre = "Sans titre"
-                exercice_id = None
-                
-            correction_data = {
-                'id': correction.id,
-                'note': float(correction.note) if correction.note else None,
-                'commentaires': correction.commentaires,
-                'date_correction': correction.date_correction.isoformat(),
-                'provider': correction.provider,
-                'solution': {
-                    'id': correction.solution.id,
-                    'exercice': {
-                        'id': exercice_id,
-                        'titre': exercice_titre
-                    }
-                }
-            }
-            
-            if correction.annotated_file:
-                correction_data['annotated_file'] = request.build_absolute_uri(correction.annotated_file.url)
-                
-            data.append(correction_data)
-        
-        return Response(data)
-
-
-class CorrectionDetailAPI(APIView):
-    """API pour obtenir le détail d'une correction"""
-    
-    def get(self, request, correction_id):
-        correction = get_object_or_404(Correction, id=correction_id)
-        
-        # Vérifier que l'utilisateur a le droit d'accéder à cette correction
-        user = request.user
-        if not (user.is_staff or user.groups.filter(name='enseignants').exists()):
-            if correction.solution.eleve != user:
-                return Response(
-                    {"error": "Vous n'avez pas accès à cette correction"},
-                    status=status.HTTP_403_FORBIDDEN
-                )
-        
+class CorrigerToutesSolutionsAPI(APIView):
+    def post(self, request, exercice_id):
         try:
-            exercice_titre = correction.solution.exercice.titre
-            exercice_id = correction.solution.exercice.id
-        except:
-            exercice_titre = "Sans titre"
-            exercice_id = None
+            exercice = Exercice.objects.get(pk=exercice_id)
+            solutions = exercice.solutions.all()
             
-        data = {
-            'id': correction.id,
-            'note': float(correction.note) if correction.note else None,
-            'commentaires': correction.commentaires,
-            'date_correction': correction.date_correction.isoformat(),
-            'provider': correction.provider,
-            'solution': {
-                'id': correction.solution.id,
-                'texte': correction.solution.texte,
-                'exercice': {
-                    'id': exercice_id,
-                    'titre': exercice_titre
-                }
-            }
-        }
-        
-        if correction.annotated_file:
-            data['annotated_file'] = request.build_absolute_uri(correction.annotated_file.url)
+            results = []
+            engine = CorrectionEngine()
             
-        return Response(data)
+            for solution in solutions:
+                correction = engine.create_correction(solution, "DEEPSEEK")
+                results.append({
+                    'solution_id': solution.id,
+                    'note': solution.note,
+                    'status': 'success'
+                })
+            
+            return Response({
+                'status': 'success',
+                'results': results
+            }, status=status.HTTP_200_OK)
+            
+        except Exercice.DoesNotExist:
+            return Response({'status': 'error', 'message': 'Exercice non trouvé'}, status=404)
+        except Exception as e:
+            return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import SoumettreSolutionAPI,ListeCorrectionAPI, CorrectionDetailAPI
+from .views import SoumettreCorrectionAPI, CorrigerSolutionAPI, CorrigerToutesSolutionsAPI
 
 urlpatterns = [
-    path('exercices/<int:exercice_id>/soumettre/', SoumettreSolutionAPI.as_view(), name='soumettre-solution'),
-    path('corrections/', ListeCorrectionAPI.as_view(), name='liste-corrections'),
-    path('corrections/<int:correction_id>/', CorrectionDetailAPI.as_view(), name='correction-detail'),
+    path('exercices/<int:exercice_id>/soumettre/', SoumettreCorrectionAPI.as_view(), name='soumettre-correction'),
+    path('solutions/<int:solution_id>/corriger/',CorrigerSolutionAPI.as_view(), name='corriger-solution'),
+    path('exercices/<int:exercice_id>/corriger-toutes/', CorrigerToutesSolutionsAPI.as_view(), name='corriger-toutes-solutions'),
 ]
