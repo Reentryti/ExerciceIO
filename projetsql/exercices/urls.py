@@ -13,4 +13,5 @@ urlpatterns = [
     path('solutions/<int:solution_id>/attribuer-note/', AttribNoteView.as_view(), name='note_attrib'),
     path('professeur/classes/<int:classe_id>/exercices/', ExercicesParClasseForProfView.as_view()),
     path('<int:exercice_id>/detection-plagiat/', PlagiatDetectionView.as_view()),
+    path('solutions/<int:solution_id>/attribuer-note/', AttribNoteView.as_view(), name='attribuer-note'),
 ]

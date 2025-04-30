@@ -204,7 +204,7 @@ export default {
     async updateNote(solution) {
       try {
         const token = localStorage.getItem('token');
-        await axios.post(`http://localhost:8000/api/solutions/${solution.id}/attribuer-note/`, {
+        await axios.post(`http://localhost:8000/exercices/solutions/${solution.id}/attribuer-note/`, {
           valeur: solution.note
         }, {
           headers: {

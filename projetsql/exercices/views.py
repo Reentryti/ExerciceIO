@@ -208,8 +208,11 @@ class DetailExerciceView(APIView):
 
 #Vue d'attribution de note
 class AttribNoteView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, solution_id):
         try:
+            print(f"Attribbu note pour solution {solution_id}")
+            print(f"Request data {request.data}")
             solution = Solution.objects.get(id=solution_id)
             #Validation de la note
             note = request.data.get('valeur')
