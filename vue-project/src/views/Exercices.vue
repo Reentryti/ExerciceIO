@@ -219,51 +219,7 @@ export default {
         console.log('Corrections chargées:', this.corrections);
       } catch (err){
         console.error('Erreur de chargement des corrections', err);
-        // Solution de secours : données de démonstration
-        this.corrections = [
-          {
-            id: 1,
-            note: 15,
-            commentaires: "Bon travail, quelques erreurs mineures",
-            date_correction: "2025-04-28T14:30:00Z",
-            provider: "DEEPSEEK",
-            solution: {
-              id: 101,
-              exercice: {
-                id: 201,
-                titre: "Exercice de mathématiques"
-              }
-            }
-          },
-          {
-            id: 2,
-            note: 18,
-            commentaires: "Excellent travail",
-            date_correction: "2025-04-25T10:15:00Z",
-            provider: "MANUAL",
-            solution: {
-              id: 102,
-              exercice: {
-                id: 202,
-                titre: "Exercice de français"
-              }
-            }
-          },
-          {
-            id: 3,
-            note: 12,
-            commentaires: "Des concepts importants manquent",
-            date_correction: "2025-04-22T16:45:00Z",
-            provider: "DEEPSEEK",
-            solution: {
-              id: 103,
-              exercice: {
-                id: 203,
-                titre: "Exercice de physique"
-              }
-            }
-          }
-        ];
+        
       }
     },
 

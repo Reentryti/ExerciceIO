@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from rest_framework.pagination import PageNumberPagination
 from .plagiat import analyse_nlp
+from django.db.models import Avg
 
 # Create your views here.
 
@@ -245,3 +246,36 @@ class PlagiatDetectionView(APIView):
         resultat = analyse_nlp(solutions)
         
         return Response(resultat)
+
+#Vue moyenne
+class ClassMoyenneView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            # Vérification que l'utilisateur a une classe
+            if not hasattr(request.user, 'classe') or not request.user.classe:
+                return Response(
+                    {"error": "Utilisateur non assigné à une classe"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Calcul de la moyenne depuis le champ note de Solution
+            moyenne = Solution.objects.filter(
+                etudiant__classe=request.user.classe,
+                note__isnull=False
+            ).aggregate(
+                moyenne_classe=Avg('note')
+            )['moyenne_classe']
+
+            # Formatage de la réponse
+            return Response({
+                "moyenne": round(float(moyenne or 0), 2),# 0 si aucune note
+                "classe": request.user.classe.nom
+            })
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -1,6 +1,6 @@
 # exercices/urls.py
 from django.urls import path
-from .views import UploadExerciceView, ListeExercicesView, ExercicesParClasseForProfView, SoumettreSolutionView, ListeSolutionsView, ProfesseurExercicesView, RecentExerciceView, DetailExerciceView, AttribNoteView, PlagiatDetectionView
+from .views import UploadExerciceView, ListeExercicesView, ExercicesParClasseForProfView, SoumettreSolutionView, ListeSolutionsView, ProfesseurExercicesView, RecentExerciceView, DetailExerciceView, AttribNoteView, PlagiatDetectionView, ClassMoyenneView
 
 urlpatterns = [
     path('upload/', UploadExerciceView.as_view(), name='upload_exercice'),
@@ -14,4 +14,6 @@ urlpatterns = [
     path('professeur/classes/<int:classe_id>/exercices/', ExercicesParClasseForProfView.as_view()),
     path('<int:exercice_id>/detection-plagiat/', PlagiatDetectionView.as_view()),
     path('solutions/<int:solution_id>/attribuer-note/', AttribNoteView.as_view(), name='attribuer-note'),
+    path('moyenne/', ClassMoyenneView.as_view(), name='class-average'),
+
 ]

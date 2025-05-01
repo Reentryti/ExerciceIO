@@ -89,16 +89,17 @@
           <div class="col-span-1 bg-white rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5 text-center ">
             <div class="items-center justify-items-center">
               <h3 class="text-gray-900 mt-5 text-base font-bold tracking-tight">
-                Moyenne de la classe
+                Moyenne
               </h3>
               <div class="bg-red-400 rounded-full size-30 text-center flex items-center justify-center mt-3">
-                <p class="text-white text-5xl font-extrabold">
-                  13/20
+                <p v-if="classMoyenne !== null" class="text-white text-5xl font-extrabold">
+                  {{ classMoyenne.toFixed(1) }}/20
+                </p>
+                <p v-else class="text-white text-lg font-medium">
+                  Chargement...
                 </p>
               </div>
-              <p class="text-gray-500 mt-2 text-sm">
-                Vous n'avez aucun exercice à remettre
-              </p>
+              
             </div>
           </div>
 
@@ -134,7 +135,8 @@ export default {
     return {
       user:null, 
       currentDate:"",
-      latestExercice:null
+      latestExercice:null,
+      classMoyenne: null
     };
   },
 
@@ -203,11 +205,28 @@ export default {
       const submissionDate = new Date(dateString);
       const today = new Date();
       return submissionDate< today;
+    },
+
+    async fetchClassMoyenne(){
+      try{
+        const token = localStorage.getItem('token');
+        const response = await axios.get("http://localhost:8000/exercices/moyenne/",{
+          headers:{
+            "Authorization":`Token ${token}`,
+            "Content-Type":"application/json"
+          }
+        });
+        this.classMoyenne = response.data.moyenne;
+      }catch(error){
+        console.error("Erreur lors de la recuperation de la moyenne ", error);
+        this.classMoyenne = 0;
+      }
     }
   },
   mounted() {
     this.fetchUser();
     this.fetchLatestExercice();
+    this.fetchClassMoyenne();
   },
 };
 </script>
