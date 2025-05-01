@@ -279,3 +279,46 @@ class ClassMoyenneView(APIView):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+#Vue Statistiques
+class StatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            
+            # Récupère toutes les solutions notées avec les exercices associés
+            solutions = Solution.objects.filter(
+                etudiant=user,
+                note__isnull=False
+            ).select_related('exercice').order_by('exercice__date_creation')
+            
+            # Formatage des données
+            data = {
+                'exercices': [],
+                'notes': [],
+                'dates': []
+            }
+            
+            for sol in solutions:
+                data['exercices'].append(sol.exercice.titre)
+                data['notes'].append(float(sol.note))
+                data['dates'].append(sol.exercice.date_creation.strftime('%Y-%m-%d'))
+            
+            # Calcul de la progression cumulative
+            cumulative_avg = []
+            total = 0
+            for i, note in enumerate(data['notes'], 1):
+                total += note
+                cumulative_avg.append(round(total / i, 2))
+            
+            data['progression'] = cumulative_avg
+            
+            return Response(data)
+            
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
