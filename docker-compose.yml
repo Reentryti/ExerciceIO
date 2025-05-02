@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend
-    env_file: .env
+    build: ./projetsql
+    env_file: ./projetsql/.env
     ports:
       - "8000:8000"
     depends_on:
@@ -11,14 +11,14 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    build: ./vue-project
     ports:
       - "5173:5173"  # Dev (Vite)
     restart: unless-stopped
 
   db:
     image: mysql:8.0
-    env_file: .env
+    env_file: ./projetsql/.env
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
