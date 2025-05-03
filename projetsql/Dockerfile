@@ -18,4 +18,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 #Commande de démarrage
-CMD ["gunicorn", "--bind", "127.0.0.1:8000", "projetsql.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "projetsql.wsgi:application"]
