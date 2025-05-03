@@ -6,8 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 #Installation sécurisée
-RUN npm ci --omit=dev && \
-    npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 #Copie du reste du code
 COPY . .

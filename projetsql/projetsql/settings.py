@@ -188,7 +188,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 SOCIALACCOUNT_LOGIN_ON_GET=True
 
-LOGIN_REDIRECT_URL= 'http://localhost:5173/auth/callback'
+LOGIN_REDIRECT_URL= 'http://localhost:5174/auth/callback'
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
@@ -204,7 +204,7 @@ STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 #]
 
 SITE_URL = 'http://localhost:8000'
-FRONTEND_URL = 'http://localhost:5173'
+FRONTEND_URL = 'http://localhost:5174'
 #Gestion des uploads
 #MEDIA_URL = '/media/'
 #MEDIA_ROOT = ''
@@ -227,9 +227,9 @@ REST_FRAMEWORK = {
 #}
 
 #Autres sécurités
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+#SECURE_SSL_REDIRECT = False
+#SESSION_COOKIE_SECURE = False
+#CSRF_COOKIE_SECURE = False
 
 #IA API KEY
 DEEPSEEK_API_KEY = config('DEEPSEEK_API_KEY', default='')
@@ -262,6 +262,8 @@ AWS_S3_OBJECT_PARAMETERS = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174", 
+    "http://127.0.0.1:5174",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
@@ -289,6 +291,8 @@ CORS_ALLOW_HEADERS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+     "http://localhost:5174",
+    "http://127.0.0.1:5174",
 ]
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
