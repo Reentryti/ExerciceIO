@@ -10,14 +10,16 @@ Application web [descript°] avec :
 - **Frontend** : Vue.js + Vite
 - **Base de données** : MySQL
 - **Stockage** : AWS S3
+- **Sécurité** : Oauth2, Détection de plagiat
+- **Visualisation de statistiques** : Chart.js
 
 ## 🌐 Accès au projet
 ### URLs de démonstration
 | Service       | Lien                          | Identifiants (si besoin) |
 |---------------|-------------------------------|--------------------------|
 | Frontend      | http://[IP_EC2]:5173          | -                        |
-| Backend (API) | http://[IP_EC2]:8000/api      | -                        |
-| Admin Django  | http://[IP_EC2]:8000/admin    | admin / MotDePasse123    |
+| Backend       | http://[IP_EC2]:8000/         | -                        |
+| Admin Django  | http://[IP_EC2]:8000/admin    |                          |
 
 ## 🛠️ Installation locale
 ### Prérequis
