@@ -185,6 +185,12 @@ SOCIALACCOUNT_PROVIDERS = {
         'METHOD': 'oauth2',
         'VERIFIED_EMAIL': True
     },
+    'github': {
+        'APP': {
+            'client_id': config('GITHUB_CLIENT_ID'),
+            'secret': config('GITHUB_SECRET'),
+        },
+    }
 }
 SOCIALACCOUNT_LOGIN_ON_GET=True
 
